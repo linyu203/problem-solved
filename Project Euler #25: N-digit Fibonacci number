@@ -1,0 +1,98 @@
+Project Euler #25: N-digit Fibonacci number
+
+
+This problem is a programming version of Problem 25 from projecteuler.net
+
+The Fibonacci sequence is defined by the recurrence relation:
+
+.
+Hence the first 12 terms will be: 
+The  term, , is the first term to contain three digits. 
+What is the first term in the Fibonacci sequence to contain  digits?
+
+Input Format
+
+The first line contains an integer  , i.e., number of test cases. 
+Next  lines will contain an integer .
+
+Constraints
+
+ 
+
+Output Format
+
+Print the values corresponding to each test case.
+
+Sample Input
+
+2
+3
+4
+Sample Output
+
+12
+17
+Easy
+Submitted 3505 times
+Max Score 100
+Need Help?
+
+View Tutorial
+View Discussions
+View Top Submissions
+Rate This Challenge:
+
+    
+Download problem statement
+Download sample test cases
+Suggest Edits
+Choose a translation
+
+
+ 
+___ code__
+
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+int main() {
+    /* Enter your code here. Read input from STDIN. Print output to STDOUT */   
+    vector<int>res(5001);
+    int cur = 1;
+    int last = 1;
+    int cnt = 2;
+    res[0] = 0;
+    res[1] = 1;
+    for(int i = 2; i <= 5000; i++){
+        do{
+            last += cur;
+            swap(last,cur);
+            cnt ++;
+        }while(to_string(cur)>to_string(last));
+        if(cur >= 1e8){
+            int carry = 0;
+            if(cur%10 >= 5) carry =1;
+            cur/=10;
+            cur += carry;
+            if(last%10 >= 5) carry =1;
+            else carry = 0;
+            last /= 10;
+            last += carry;
+        }
+        res[i] = cnt;
+    }
+    int n;
+    
+    cin>>n;
+    while(n--){
+        int temp;
+        cin>>temp;
+        cout<<res[temp]<<endl;
+    }
+    return 0;
+}
