@@ -1,22 +1,35 @@
+to share this solution for N-digit Fibonacci Number with C++
+5000 digital number is a huge number for C++, 
+and this solution use <int> to solve this problem without large digital,
+in N-liner time complex and memory cost by two little trickies:
+"to_string(cur)>to_string(last)" and "if(cur%10 >= 5) carry =1; cur/=10;"
+
+
 Project Euler #25: N-digit Fibonacci number
+Original link:
+https://www.hackerrank.com/contests/projecteuler/challenges/euler025
 
 
 This problem is a programming version of Problem 25 from projecteuler.net
 
 The Fibonacci sequence is defined by the recurrence relation:
-
-.
+       F(n) = F(n-1) +F(n-2), where F(1)= 1 and F(2) =1
 Hence the first 12 terms will be: 
-The  term, , is the first term to contain three digits. 
-What is the first term in the Fibonacci sequence to contain  digits?
+       F(3) = 2 F(4) = 3 F(5) = 5 F(6) = 8 F(7) = 13 F(8) = 21
+       F(9) = 34 F(10)=55 F(11) = 89 F(12) = 144
+
+
+The 12th term, F(12), is the first term to contain three digits. 
+What is the first term in the Fibonacci sequence to contain N digits?
 
 Input Format
 
-The first line contains an integer  , i.e., number of test cases. 
-Next  lines will contain an integer .
+The first line contains an integer T , i.e., number of test cases. 
+Next  lines will contain an integer N.
 
 Constraints
-
+1<=T<=5000
+2<=N<=5000
  
 
 Output Format
@@ -32,23 +45,6 @@ Sample Output
 
 12
 17
-Easy
-Submitted 3505 times
-Max Score 100
-Need Help?
-
-View Tutorial
-View Discussions
-View Top Submissions
-Rate This Challenge:
-
-    
-Download problem statement
-Download sample test cases
-Suggest Edits
-Choose a translation
-
-
  
 ___ code__
 
