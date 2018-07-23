@@ -1,0 +1,159 @@
+https://www.hackerrank.com/contests/projecteuler/challenges/euler033
+
+This problem is a programming version of Problem 33 from projecteuler.net
+
+The fraction 49/98 is a curious fraction. An inexperienced mathematician while attempting to simplify it may incorrectly believe 
+that 49/98=4/8 is obtained by cancelling the 9s.
+
+We shall consider fractions like, 30/50=3/5, to be trivial examples.
+
+Which means fractions where trailing 0's are cancelled are trivial. So we will ignore all the cases where we have to cancel 0's.
+
+You will be given 2 integers N and K . K represents the number of digits in Numerator and Denominator, and K represents the exact
+number of digits to be "cancelled" from Numerator and Denominator. Find every non-trivial fraction, (1) where numerator is less 
+than denominator, (2) and the value of the reduced fraction is equal to the original fraction.
+
+Sum all the Numerators and the Denominators of the original fractions, and print them separated by a space.
+
+Input Format
+
+Input contains two integers  N K
+
+Constraints
+2<=N<=4
+1<=K<=N-1 
+
+Output Format
+
+Display 2 space separated integers that denote the sum of the Numerators and the sum of the Denominators respectively
+of original fractions. 
+Note You do not have to reduce the Numerator and Denominator.
+
+Sample Input
+
+2 1
+Sample Output
+
+110 322
+
+tough problem: 
+sulotion:
+
+
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <unordered_set>
+using namespace std;
+
+int locstoi(string a){
+    int res = 0;
+    for(char c:a)
+        res = res*10+c-'0';
+    return res;
+}
+
+void produce1(string sa,string i, vector<int>&ss){
+    string temp = i+sa;
+    ss.push_back(locstoi(temp));
+    if(temp[1]=='0'){
+        return ;
+    }
+    for(int i = 1; i < temp.size(); i++){
+        swap(temp[i-1],temp[i]);
+        ss.push_back(locstoi(temp));
+    }
+}
+
+void produce(string a, string si, vector<int>&ss){
+    if(si.size() == 0){
+        if(a[0] != '0')
+            ss.push_back(locstoi(a));
+        return;
+    }
+    char c = si[0];
+    si = si.substr(1);
+    for(int i = 0 ; i<=a.size(); i++){
+        string temp = a.substr(0,i)+c+a.substr(i);
+        produce(temp,si,ss);
+    }
+    
+}
+
+void producesi(int k, string cur,int last,vector<string>&ss){
+    if(cur.size()==k){
+        ss.push_back(cur);
+        return;
+    }
+    for(int i = last; i <= 9; i++){
+        cur.push_back(char('0'+i));
+        producesi(k,cur,i,ss);
+        cur.pop_back();
+        //break;
+    }
+}
+
+int lcf(int a, int b){
+    while(b%a !=0){
+        b %=a;
+        swap(b,a);
+    }
+    return a;
+}
+void check(int a, int b, vector<string>& vsi,int &suma, int &sumb,unordered_set<int>&us,int n){
+    if(n==3 && lcf(a,b) == 1)return;
+    string sa = to_string(a);
+    string sb = to_string(b);
+    while(n>sa.size()){
+        sa = '0'+sa;
+    }
+    while(n>sb.size()){
+        sb = '0'+sb;
+    }
+    for(auto s:vsi){
+        vector<int>usia;
+        vector<int>usib;
+        if(1 == s.size()){
+            produce1(sa,s,usia);
+            produce1(sb,s,usib);
+        }else{
+            produce(sa,s,usia);
+            produce(sb,s,usib);
+        }
+        for(int aa:usia){
+            for(int bb:usib){
+                if(aa>=bb)continue;
+                if(aa*b==bb*a){
+                    if(us.count(aa*10000+bb)) continue;
+                    suma+=aa;
+                    sumb+=bb;
+                    us.insert(aa*10000+bb);
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    /* Enter your code here. Read input from STDIN. Print output to STDOUT */   
+    int n,k;
+    cin>>n>>k;
+    int suma = 0;
+    int sumb = 0;
+    n-=k;
+    int st = pow(10,n-1);
+    int end = pow(10,n);
+    string temp;
+    vector<string>vsi;
+    producesi(k,temp,1,vsi);
+    unordered_set<int>us;
+    for(int i = 1; i < end; i++){
+        for(int j = i+1; j < end; j++){
+            check(i,j,vsi,suma,sumb,us,n);
+        }
+    }
+    cout<<suma<<" "<<sumb<<endl;
+    return 0;
+}
