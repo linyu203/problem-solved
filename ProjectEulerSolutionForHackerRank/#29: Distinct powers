@@ -1,4 +1,6 @@
 Project Euler #29: Distinct powers:
+https://www.hackerrank.com/contests/projecteuler/challenges/euler029
+
 This problem is a programming version of Problem 29 from projecteuler.net
 
 Consider all integer combinations a^b of 2<=a<=5  for  2<=b<=5 and :
