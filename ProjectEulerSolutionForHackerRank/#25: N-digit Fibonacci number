@@ -4,6 +4,7 @@ and this solution use <int> to solve this problem without large digital,
 in N-liner time complex and memory cost by two little trickies:
 "to_string(cur)>to_string(last)" and "if(cur%10 >= 5) carry =1; cur/=10;"
 
+https://www.hackerrank.com/contests/projecteuler/challenges/euler025
 
 Project Euler #25: N-digit Fibonacci number
 Original link:
