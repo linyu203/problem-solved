@@ -1,0 +1,140 @@
+https://www.hackerrank.com/contests/hourrank-29/challenges/birthday-assignment
+
+
+
+Birthday Assignment
+
+
+Nikita has a family tree T consisting of N members number from 1 to N . Each of the N-1  edges in the tree represents a directed 
+relationship. Basically if there is an edge from member A to B, it means B was born before A. Now, Nikita knows that these N members
+were born in last M days and only 1 person was born on a single day, She is interested in calculating the number of ways to assign 
+birthdays to each of the N family members.
+
+Since the required answer can be quite large, print it modulo 10^9+7 .
+
+Input Format
+
+First line of input contains a single integer T denoting the number of test cases. 
+First line of each test case contains 2 space separated integers denoting N and M respectively. 
+Next N-1 lines of each test case contains 2 space separated integers A and B denoting a direct relationship from A to B.
+
+Constraints
+1<=T<=5
+1<=N<=1000
+1<=A,B<=N
+1<=M<=10^9
+Scoring
+1<=N=M<=9 for 20% test data.
+ 1<=N<=100 for 20% test data.
+ 1<=N<=1000 for 60% test data.
+Output Format
+
+Output consists of only T line. For each line, Print required answer modulo 10^9+7.
+
+Sample Input 0
+
+2
+3 4
+1 2
+2 3
+3 4
+1 2
+3 2
+Sample Output 0
+
+4
+8
+
+
+______________________________________
+solution:(from contest leader)
+_________________________________________
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+typedef long long LL;
+const int P=1e9+7,mod=1000000007,N=1010;
+int n,adj[N],e,m;
+LL g[N],C[N][N],sum[N][N],size[N],f[N][N];
+struct edge{int zhong,next,val;}s[N<<1];
+inline void add(int qi,int zhong,int val)
+    {s[++e].zhong=zhong;s[e].val=val;s[e].next=adj[qi];adj[qi]=e;}
+void dfs(int rt,int fa)
+{
+    size[rt]=f[rt][0]=1;
+    for(int i=adj[rt];i;i=s[i].next)
+    {
+        int u=s[i].zhong;
+        if(u!=fa)
+        {
+            dfs(u,rt);int limit=size[rt]+size[u];
+            for(int i=0;i<limit;i++)g[i]=0;
+            if(s[i].val==1)
+                for(int j=0;j<size[rt];j++)
+                    for(int k=0;k<=size[u];k++)
+                    {
+                        LL tmp1=f[rt][size[rt]-j-1]%mod*(sum[u][size[u]-1]-sum[u][size[u]-k-1]+mod)%mod;
+                        LL tmp2=C[j+k][k]*C[limit-j-k-1][size[u]-k]%mod;
+                        g[limit-j-k-1]=(g[limit-j-k-1]+tmp1*tmp2%mod)%mod;
+                    }
+            else
+                for(int j=0;j<size[rt];j++)
+                    for(int k=0;k<=size[u];k++)
+                    {
+                        LL tmp1=f[rt][j]%mod*sum[u][k-1]%mod;
+                        LL tmp2=C[j+k][k]*C[limit-j-k-1][size[u]-k]%mod;
+                        g[j+k]=(g[j+k]+tmp1*tmp2%mod)%mod;
+                    }
+            size[rt]+=size[u];
+            for(int j=0;j<size[rt];j++)f[rt][j]=g[j];
+        }
+    }
+    sum[rt][0]=f[rt][0];
+    for(int j=1;j<size[rt];j++)sum[rt][j]=(sum[rt][j-1]+f[rt][j])%mod;
+}
+int Pow(int a,int b){
+    int ret=1;
+    for (;b;b>>=1,a=1ll*a*a%P)
+        if (b&1) ret=1ll*ret*a%P;
+    return ret;
+}
+int CC(int n,int m){
+    if (n<m) return 0;
+    //n 1e9 m 1000
+    int A=1,B=1;
+    for (int i=0;i<m;i++){
+        A=1ll*A*(n-i)%P;
+        B=1ll*B*(i+1)%P;
+    }
+    return 1ll*A*Pow(B,P-2)%P;
+}
+int main()
+{
+    for(int i=0;i<=1000;i++)
+    {
+        C[i][0]=1;
+        for(int j=1;j<=i;j++)
+            C[i][j]=(C[i-1][j]+C[i-1][j-1])%mod;
+    }
+    int t,a,b;char c[3];scanf("%d",&t);
+    while(t--)
+    {
+        scanf("%d%d",&n,&m);
+        memset(size,0,sizeof(size));
+        memset(f,0,sizeof(f));
+        memset(sum,0,sizeof(sum));
+        e=0;memset(adj,0,sizeof(adj));
+        for(int i=1;i<n;i++)
+        {
+            scanf("%d%d",&a,&b);
+            add(b,a,1),add(a,b,-1);
+        }
+        dfs(1,0);int ans=0;
+        for(int i=0;i<n;i++)
+            ans=(ans+f[1][i])%mod;
+        printf("%d\n",1ll*ans*CC(m,n)%P);
+    }
+}
+
+
