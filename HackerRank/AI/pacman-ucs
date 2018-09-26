@@ -1,0 +1,103 @@
+/*
+https://www.hackerrank.com/challenges/pacman-ucs/problem
+*/
+
+
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <queue>
+#include <unordered_map>
+using namespace std;
+/*struct com{
+    bool operator < (vector<int>a, vector<int>b){
+        if(a[0] == b[0]){
+            return a[1]>b[1];
+        }
+        return a[0]>b[0];
+    }
+};*/
+typedef pair<int,int> PII;
+#define MKKEY(_r,_c) ((_r)*100+(_c))
+#define PRSKEY(_k,_r,_c) {(_r) = (_k)/100;(_c) = (_k)%100;}
+#define HDIS(_fx,_fy,_r,_c) (abs((_r)-(_fx))+abs((_c) - (_fy)))
+void astarsearch(int r, int c, int px,int py, int fx, int fy,vector<string>&grid){
+    priority_queue<PII>pq;//
+    unordered_map<int,int>mpk;
+    int pk = MKKEY(px,py);
+    int tark = MKKEY(fx,fy);
+    if(pk == tark){
+        cout<<0<<endl<<px<<" "<<py<<endl;
+        return;
+    }
+    mpk[pk] = -1;
+    pq.push({HDIS(fx,fy,px,py),pk});
+    int tempk,d,i,j;
+    while(!pq.empty()){
+        auto q = pq.top();
+        pq.pop();
+        //d = q.second.second+1;
+        tempk = q.second;
+        PRSKEY(tempk,i,j);
+        pk = MKKEY(i-1,j);
+        if(i>0 && grid[i-1][j] != '%' && !mpk.count(pk)){
+            mpk[pk] = tempk;
+            pq.push({HDIS(fx,fy,i-1,j),pk});
+            if(pk == tark){
+                break;
+            }
+        }
+        pk = MKKEY(i,j-1);
+        if(j>0 && grid[i][j-1] != '%' && !mpk.count(pk)){
+            mpk[pk] = tempk;
+            pq.push({HDIS(fx,fy,i,j-1),pk});
+            if(pk == tark){
+                break;
+            }
+        }
+        pk = MKKEY(i,j+1);
+        if(j< c-1 && grid[i][j+1] != '%' && !mpk.count(pk)){
+            mpk[pk] = tempk;
+            pq.push({HDIS(fx,fy,i,j+1),pk});
+            if(pk == tark){
+                break;
+            }
+        }
+        pk = MKKEY(i+1,j);
+        if(i<r-1 && grid[i+1][j] != '%' && !mpk.count(pk)){
+            mpk[pk] = tempk;
+            pq.push({HDIS(fx,fy,i+1,j),pk});
+            if(pk == tark){
+                break;
+            }
+        }
+    }
+    
+    vector<int>res;
+    if(!mpk.count(tark)) return;
+    tempk = tark;
+    do{
+        res.push_back(tempk);
+        tempk = mpk[tempk];
+    }while(tempk>=0);
+    cout<<res.size()-1<<endl;
+    for(int k = res.size()-1; k>=0; k--){
+        PRSKEY(res[k],i,j);
+        cout<<i<<" "<<j<<endl;
+    }
+}
+
+int main(void) {
+    /* Enter your code here. Read input from STDIN. Print output to STDOUT */   
+    int px,py,fx,fy,r,c;
+    cin>>px>>py>>fx>>fy>>r>>c;
+    vector<string>grid(r);
+    for(int i=0; i < r; i++){
+        cin>>grid[i];
+    }
+    astarsearch(r,c,px,py,fx,fy,grid);
+    return 0;
+}
