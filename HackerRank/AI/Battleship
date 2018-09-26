@@ -1,0 +1,209 @@
+/*
+
+https://www.hackerrank.com/challenges/battleship/problem
+
+*/
+
+
+
+
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    /* Enter your code here. Read input from STDIN. Print output to STDOUT */   
+    srand(time(NULL));
+    string input;
+    cin>>input;
+    if("INIT" == input){
+        vector<vector<bool>> baa(10,vector<bool>(10,false));
+        int cnt[] ={5,4,3,2,2,1,1};
+        vector<string> init(7);
+        for(int i = 0; i < 7; i++){
+            while(true){
+                int vv = rand()%100;
+                int ccc = cnt[i];
+                int a = vv/10;
+                int b = vv%10;
+                int j = 0;
+                if(i%2){
+                    if(b+ccc>10)continue;
+                    for(; j < ccc; j++){
+                        if(baa[a][b+j]){
+                            break;
+                        }
+                    }
+                }else{
+                    if(a+ccc>10)continue;
+                    for(; j < ccc; j++){
+                        if(baa[a+j][b]){
+                            break;
+                        }
+                    }
+                }
+                if(j<ccc)
+                    continue;
+                init[i] = to_string(a) + " " + to_string(b);
+                baa[a][b]=true;
+                if(ccc>1){
+                    init[i] += ":";
+                    if(i%2){
+                        init[i] += to_string(a)+" "+to_string(b+ccc-1);
+                        for(int k = 1; k < ccc;k++)
+                            baa[a][b+k]=true;
+                    }else{
+                        init[i] += to_string(a+ccc-1)+" "+to_string(b);
+                        for(int k = 1; k < ccc;k++)
+                            baa[a+k][b]=true;
+                    }
+                }
+                break;
+            }
+        }
+        for(int i = 6; i >=0; i--){
+            cout<<init[i]<<endl;
+        }
+            
+        return 0;
+    }
+    vector<string> vs(10);
+    bool bcheckh = false;
+    int a = 0;
+    int b = 0;
+    for(int i = 0; i < 10; i ++){
+        cin>>vs[i];
+        if(!bcheckh)
+        for(int j = 0; j < 10; j++){
+            if(vs[i][j] == 'h'){
+                bcheckh = true;
+                a = i;
+                b = j;
+                break;
+            }
+        }
+    }
+    if(bcheckh){
+        if(a<9 && vs[a+1][b] == 'h'){
+            if(a>0 && vs[a-1][b] == '-'){
+                cout<< a-1<<" "<<b<<endl;
+                return 0;
+            }else{
+                int j= 2;
+                while(a+j<10 && vs[a+j][b] == 'h')
+                    j++;
+                if(vs[a+j][b] == '-'){
+                    cout<<a+j<<" "<<b<<endl;
+                    return 0;
+                }
+            }
+        }
+        if(b<9 && vs[a][b+1] == 'h'){
+            if(b>0 && vs[a][b-1] == '-'){
+                cout<< a<<" "<<b-1<<endl;
+                return 0;
+            }else{
+                int j= 2;
+                while(b+j<10 && vs[a][b+j] == 'h')
+                    j++;
+                if(vs[a][b+j] == '-'){
+                    cout<<a<<" "<<b+j<<endl;
+                    return 0;
+                }
+            }
+        }
+        int dir[4][2] = {{-1,0},{0,1},{1,0},{0,-1}};
+        for(int k = 1; k < 10; k ++){
+            for(int i = 0; i < 4; i++){
+                int aa = a+ dir[i][0]*k;
+                int bb = b+ dir[i][1]*k;
+                if(aa>=0 && aa< 10 && bb>= 0&& bb< 10 && vs[aa][bb] == '-'){
+                    cout<<aa<<" "<<bb<<endl;
+                    return 0;                    
+                }
+            }
+        }
+    }
+    
+    if(vs[4][4] == 'd'){
+        if(vs[8][0] == '-'){
+            cout<<"8 0"<<endl;
+            return 0;        
+        }else if(vs[8][0] == 'd'){
+            if(vs[7][4] == '-'){
+                cout<<"7 4"<<endl;
+                return 0;        
+            }else if(vs[7][4] == 'd'){
+                if(vs[7][9] == '-'){
+                    cout<<"7 9"<<endl;
+                    return 0;        
+                }else if(vs[7][9] == 'd'){
+                    if(vs[3][7] == '-'){
+                        cout<<"3 7"<<endl;
+                        return 0;        
+                    }else if(vs[3][7] == 'd'){
+                        if(vs[4][2] == '-'){
+                            cout<<"4 2"<<endl;
+                            return 0;        
+                        }else if(vs[4][2] == 'd'){
+                            if(vs[0][0] == '-'){
+                                cout<<"0 0"<<endl;
+                                return 0;        
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    int ccc = 0;
+    vector<int>vi;
+    vector<vector<int>> vvi(10,vector<int>(10,0));
+    for(int i = 0; i < 10; i++){
+        int cc = 0;
+        for(int j = 0; j <= 10; j++){
+            if(j<10 && vs[i][j] == '-'){
+                cc++;
+            }else{
+                int cnt = 1;
+                int tccc = cc;
+                while(cc>0){
+                    vvi[i][j-cc] = min(++cnt,cc)+tccc;
+                    cc--;
+                }
+            }
+        }
+    }
+    for(int i = 0; i < 10; i++){
+        int cc = 0;
+        for(int j = 0; j <= 10; j++){
+            if(j<10 && vs[j][i] == '-'){
+                cc++;
+            }else{
+                int cnt = 1;
+                int tccc = cc;
+                while(cc>0){
+                    int temp = min(++cnt,cc)+tccc;
+                    if(vvi[j-cc][i]+temp > ccc){
+                        ccc = vvi[j-cc][i]+temp;
+                        vi.clear();
+                        vi.push_back((j-cc)*10+i);
+                    }else if(vvi[j-cc][i]+temp == ccc){
+                        vi.push_back((j-cc)*10+i);
+                    }
+                    cc--;
+                }
+            }
+        }
+    }
+    int nn = rand()%vi.size();
+    int ii = vi[nn];
+    int sta = ii/10;
+    int stb = ii%10;
+    cout<<sta<<" "<<stb<<endl;
+    return 0;
+}
