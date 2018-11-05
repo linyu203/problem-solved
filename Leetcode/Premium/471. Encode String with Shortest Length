@@ -1,0 +1,142 @@
+471. Encode String with Shortest Length
+https://leetcode.com/problems/encode-string-with-shortest-length/
+Given a non-empty string, encode the string such that its encoded length is the shortest.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times.
+
+Note:
+
+k will be a positive integer and encoded string will not be empty or have extra space.
+You may assume that the input string contains only lowercase English letters. The string's length is at most 160.
+If an encoding process does not make the string shorter, then do not encode it. If there are several solutions, return any of them is fine.
+ 
+
+Example 1:
+
+Input: "aaa"
+Output: "aaa"
+Explanation: There is no way to encode it such that it is shorter than the input string, so we do not encode it.
+ 
+
+Example 2:
+
+Input: "aaaaa"
+Output: "5[a]"
+Explanation: "5[a]" is shorter than "aaaaa" by 1 character.
+ 
+
+Example 3:
+
+Input: "aaaaaaaaaa"
+Output: "10[a]"
+Explanation: "a9[a]" or "9[a]a" are also valid solutions, both of them have the same length = 5, which is the same as "10[a]".
+ 
+
+Example 4:
+
+Input: "aabcaabcd"
+Output: "2[aabc]d"
+Explanation: "aabc" occurs twice, so one answer can be "2[aabc]d".
+ 
+
+Example 5:
+
+Input: "abbbabbbcabbbabbbc"
+Output: "2[2[abbb]c]"
+Explanation: "abbbabbbc" occurs twice, but "abbbabbbc" can also be encoded to "2[abbb]c", so one answer can be "2[2[abbb]c]".
+
+class Solution {
+public:
+    string encode(string str) {
+        if (str.empty()) {
+            return str;
+        }
+        
+        int length = str.length();
+        
+        // DP cache
+        // pair<pair<repeat, factor string>, coded string>
+        vector<vector<pair<pair<int, string>, string>>> dp(length, vector<pair<pair<int, string>, string>>(length));
+
+        // Increase length from [1 ... s.length()] 
+        for (int len = 1; len <= length; ++len) {
+            // Increase start index
+            for (int s = 0; s < length - len + 1; ++s) {
+                // End index
+                int e = s + len - 1;
+                
+                // 1. Initialize with original substring
+                dp[s][e].first.first = 1;
+                dp[s][e].first.second = str.substr(s, len);
+                dp[s][e].second = dp[s][e].first.second;
+                
+                // 2. Partition substring a various position 
+                //    [i...k-1] [k ...j] and try to find smaller encoding
+                //    First try to do repeat compression and then do partition compression
+                for (int k = s + 1; k <= e; ++k) {
+                    if (dp[s][k - 1].first.second == dp[k][e].first.second) { 
+                        // Partitions have a common repeat string
+                        dp[s][e].first.first = dp[s][k - 1].first.first +  dp[k][e].first.first;
+                        dp[s][e].first.second = dp[s][k - 1].first.second;
+                        
+                        // String length > 3 for compression
+                        if (len > 3) {
+                            // Compressed string
+                            string t = to_string(dp[s][e].first.first) + "[" + dp[s][e].first.second + "]";
+
+                            if (t.length() < len) {
+                                dp[s][e].second = t;
+                            }
+                        }
+                        
+                        // Break as repeat encoding gives shortest path
+                        break;
+                    } else if (dp[s][k - 1].second.length() + dp[k][e].second.length() < dp[s][e].second.length()) {
+                        // Use compressed partitions
+                        dp[s][e].first.first = 1;
+                        dp[s][e].first.second = dp[s][k - 1].second + dp[k][e].second;
+                        dp[s][e].second = dp[s][e].first.second;
+                    }
+                }
+            }
+        }
+        
+        return dp[0][length - 1].second;
+    }
+};
+
+class Solution {
+public:
+    string encode(string s) {
+        
+        int n=s.size(); if(n<=4) return s;
+        
+        vector<vector<string>> dp(n,vector<string>(n,""));
+        
+        for(int k=0;k<n;k++)
+            for(int i=0;i+k<n;i++)
+            {
+                int j=i+k; dp[i][j]=s.substr(i,k+1);
+                
+                if(k+1<=4) continue;
+                for(int p=j;p>i;p--)
+                    if(dp[i][p-1].size()+dp[p][j].size()<dp[i][j].size())
+                        dp[i][j]=dp[i][p-1]+dp[p][j];
+                
+                auto str=s.substr(i,k+1);
+                auto str1=str+str;
+                int p=str1.find(str,1);
+                if(p<k+1)
+                {
+                    int num=(k+1)/p;
+                    auto temp=to_string(num)+"["+dp[i][i+p-1]+"]";
+                    if(temp.size()<dp[i][j].size())
+                        dp[i][j]=temp;
+                }
+            }
+        
+        return dp[0][n-1];
+    }
+};
+
+
