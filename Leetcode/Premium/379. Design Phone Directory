@@ -1,0 +1,125 @@
+379. Design Phone Directory
+https://leetcode.com/problems/design-phone-directory/
+
+
+Design a Phone Directory which supports the following operations:
+
+get: Provide a number which is not assigned to anyone.
+check: Check if a number is available or not.
+release: Recycle or release a number.
+Example:
+
+// Init a phone directory containing a total of 3 numbers: 0, 1, and 2.
+PhoneDirectory directory = new PhoneDirectory(3);
+
+// It can return any available phone number. Here we assume it returns 0.
+directory.get();
+
+// Assume it returns 1.
+directory.get();
+
+// The number 2 is available, so return true.
+directory.check(2);
+
+// It returns 2, the only number that is left.
+directory.get();
+
+// The number 2 is no longer available, so return false.
+directory.check(2);
+
+// Release number 2 back to the pool.
+directory.release(2);
+
+// Number 2 is available again, return true.
+directory.check(2);
+
+
+//48ms
+class PhoneDirectory {
+public:
+    /** Initialize your data structure here
+        @param maxNumbers - The maximum numbers that can be stored in the phone directory. */
+    PhoneDirectory(int maxNumbers) {
+        for (int i = 0; i < maxNumbers; i++)
+            s.insert(i);
+    }
+    
+    /** Provide a number which is not assigned to anyone.
+        @return - Return an available number. Return -1 if none is available. */
+    int get() {
+        if (s.empty()) return -1;
+        int num = *(s.begin());
+        s.erase(s.begin());
+        return num;
+    }
+    
+    /** Check if a number is available or not. */
+    bool check(int number) {
+        return s.count(number);
+    }
+    
+    /** Recycle or release a number. */
+    void release(int number) {
+        s.insert(number);
+        return;
+    }
+    
+private:
+    unordered_set<int> s;
+};
+
+
+
+//sample 28 ms submission
+class PhoneDirectory {
+public:
+    int maxNum;
+    vector<int> numbers;
+    int next_free;
+    unordered_map<int, bool> map;
+    /** Initialize your data structure here
+        @param maxNumbers - The maximum numbers that can be stored in the phone directory. */
+    PhoneDirectory(int maxNumbers) {
+        maxNum = maxNumbers;
+       for (int i = 0; i < maxNum; i++) {
+          numbers.push_back(i);
+          map[i] = true;
+       }
+       next_free = 0;
+   
+    }
+    
+    /** Provide a number which is not assigned to anyone.
+        @return - Return an available number. Return -1 if none is available. */
+    int get() {
+        if (next_free >= maxNum) {
+            return -1;
+        }
+        int number;
+        number = numbers[next_free++];
+        map[number] = false;
+        return number;        
+    }
+    
+    /** Check if a number is available or not. */
+    bool check(int number) {
+        return map[number];        
+    }
+    
+    /** Recycle or release a number. */
+    void release(int number) { 
+        if (map.find(number) == map.end() || map[number] == true) {
+            return;
+        }
+       numbers[--next_free] = number;
+        map[number] = true;        
+    }
+};
+
+/**
+ * Your PhoneDirectory object will be instantiated and called as such:
+ * PhoneDirectory obj = new PhoneDirectory(maxNumbers);
+ * int param_1 = obj.get();
+ * bool param_2 = obj.check(number);
+ * obj.release(number);
+ */
