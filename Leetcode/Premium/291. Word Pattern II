@@ -1,0 +1,114 @@
+291. Word Pattern II
+https://leetcode.com/problems/word-pattern-ii/
+
+Given a pattern and a string str, find if str follows the same pattern.
+
+Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty substring in str.
+
+Example 1:
+
+Input: pattern = "abab", str = "redblueredblue"
+Output: true
+Example 2:
+
+Input: pattern = pattern = "aaaa", str = "asdasdasdasd"
+Output: true
+Example 3:
+
+Input: pattern = "aabb", str = "xyzabcxzyabc"
+Output: false
+Notes:
+You may assume both pattern and str contains only lowercase letters.
+
+
+class Solution {
+public:
+    unordered_map<char, string> pDict;
+    unordered_map<string, char> sDict;
+    bool wordPatternMatch(string pattern, string str) {
+        return match(pattern, 0, str, 0);
+    }
+    
+    bool match(string &pattern, int i, string &str, int j) {
+        int m = pattern.size();
+        int n = str.size();
+        if (i == m || j == n) {
+            if (i == m && j == n)
+                return true;
+            return false;
+        }
+        bool ins = false;
+        for (int k = j; k < n; k++) {
+            string s = str.substr(j, k - j + 1);
+            if (pDict.find(pattern[i]) != pDict.end()) {
+                if (pDict[pattern[i]] != s)
+                    continue;
+            } else if (sDict.find(s) != sDict.end()) {
+                if (sDict[s] != pattern[i])
+                    continue;
+            } else {
+                pDict[pattern[i]] = s;
+                sDict[s] = pattern[i];
+                ins = true;
+            }
+            if (match(pattern, i + 1, str, k + 1))
+                return true;
+            if (ins) {
+                pDict.erase(pattern[i]);
+                sDict.erase(s);
+            }
+        }
+        return false;
+    }
+};
+C++ backtracking. ins indicates whether current round has inserted new mapping pair.
+edited with two maps to ensure on-to-one mapping.
+
+
+
+
+
+
+sample 0 ms submission
+class Solution {
+public:
+   bool helper(const string &pattern, const string &str, vector<string> &dict, unordered_map<string, char> &s) {
+		if (pattern.empty() && str.empty()) return true;
+		int expectedSize = 0;
+		for (int i = 0; i < pattern.size(); ++i)
+			expectedSize += max((int)dict[pattern[i] - 'a'].size(), 1);
+		if (expectedSize > str.size())
+			return false;
+		for (int i = 0; i < pattern.size(); ++i) {
+			int index = pattern[i] - 'a';
+			if (dict[index].empty()) {
+				for (int j = 0; j <= str.size() - pattern.size(); ++j) {
+					string substr = str.substr(0, j + 1);
+					if (s.find(substr) != s.end())
+						continue;
+					s[substr] = pattern[i];
+					dict[index] = substr;
+					if (helper(pattern.substr(1), str.substr(j + 1), dict, s))
+						return true;
+					s.erase(substr);
+					dict[index] = "";
+				}
+				return false;
+			}
+			else {
+				for (int j = 0; j < dict[index].size(); ++j)
+					if (dict[index][j] != str[j])
+						return false;
+				return (helper(pattern.substr(1), str.substr(dict[index].size()), dict, s));
+			}
+		}
+		return false;
+	}
+public:
+	bool wordPatternMatch(string pattern, string str) {
+		vector<string> dict(26, "");
+		unordered_map<string, char> s;
+		return helper(pattern, str, dict, s);
+	}
+
+};
