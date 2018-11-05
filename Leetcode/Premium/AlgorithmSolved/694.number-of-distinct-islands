@@ -25,3 +25,40 @@ and
 11
 are considered different island shapes, because we do not consider reflection / rotation.
 Note: The length of each dimension in the given grid does not exceed 50.
+
+
+
+class Solution {
+    int m,n;
+    string temp;
+    void dfs(vector<vector<int>>& grid,int x, int y,char c){
+        if(x<0||y<0||x>=m||y>=n||grid[x][y]==0){
+            return;
+        }
+        grid[x][y] = 0;
+        temp += c;
+        dfs(grid,x-1,y,'u');
+        dfs(grid,x,y+1,'r');
+        dfs(grid,x+1,y,'d');
+        dfs(grid,x,y-1,'l');
+        temp += 'b';
+    }
+public:
+    int numDistinctIslands(vector<vector<int>>& grid) {
+        m =grid.size();
+        if(0==m)return 0;
+        n = grid[0].size();
+        int res= 0;
+        unordered_set<string>uss;
+        for(int i=0; i < m; i++){
+            for(int j=0; j < n; j++){
+                if(grid[i][j]){
+                    dfs(grid,i,j,'o');
+                    uss.insert(temp);
+                    temp.clear();
+                }
+            }
+        }
+        return uss.size();
+    }
+};
