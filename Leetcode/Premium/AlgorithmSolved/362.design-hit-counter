@@ -32,3 +32,52 @@ counter.getHits(300);
 counter.getHits(301); 
 Follow up:
 What if the number of hits per second could be very large? Does your design scale?
+
+
+
+class HitCounter {
+public:
+    /** Initialize your data structure here. */
+    queue<pair<int,long>>q;
+    long res;
+    pair<int,long>cur;
+    HitCounter() {
+        res = 0;
+        cur.first = 0;
+        cur.second = 0;
+    }
+    
+    /** Record a hit.
+        @param timestamp - The current timestamp (in seconds granularity). */
+    void hit(int timestamp) {
+        if(timestamp == cur.first){
+            cur.second++;
+        }else{
+            q.push(cur);
+            cur.first = timestamp;
+            cur.second = 1;
+        }
+        res++;
+    }
+    
+    /** Return the number of hits in the past 5 minutes.
+        @param timestamp - The current timestamp (in seconds granularity). */
+    int getHits(int timestamp) {
+        if(cur.second>0 && cur.first != timestamp){
+            q.push(cur);
+            cur.second=0;
+        }
+        while(!q.empty()&& (q.front().first+5*60)<=timestamp){
+            res -= q.front().second;
+            q.pop();
+        }
+        return res;
+    }
+};
+
+/**
+ * Your HitCounter object will be instantiated and called as such:
+ * HitCounter obj = new HitCounter();
+ * obj.hit(timestamp);
+ * int param_2 = obj.getHits(timestamp);
+ */
