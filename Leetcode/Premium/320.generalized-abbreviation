@@ -1,0 +1,76 @@
+320.generalized-abbreviation
+https://leetcode.com/problems/generalized-abbreviation/
+
+Write a function to generate the generalized abbreviations of a word. 
+
+Note: The order of the output does not matter.
+
+Example:
+
+Input: "word"
+Output:
+["word", "1ord", "w1rd", "wo1d", "wor1", "2rd", "w2d", "wo2", "1o1d", "1or1", "w1r1", "1o2", "2r1", "3d", "w3", "4"]
+
+
+
+class Solution {
+public:
+    
+    void calc(string word, vector<string>& ans, string cur) {
+        int n=word.length();
+        if(n==0) {
+            ans.push_back(cur);
+            return;
+        }
+        for(int i=1;i<=n;i++) {
+            calc(((i+1)<n?word.substr(i+1):""), ans, cur + to_string(i)+ ((i<n)?(string(1,word[i])):""));
+        }
+        calc(word.substr(1), ans, cur+word.substr(0,1));
+    }
+    
+    vector<string> generateAbbreviations(string word) {
+        vector<string> ans;
+        string cur="";
+        calc(word, ans, cur);
+        return ans;
+    }
+};
+
+
+
+class Solution {
+public:
+    vector<string> generateAbbreviations(string word) {
+        vector<string> ans;
+      string path;
+      go(0, word, path, ans);
+      return ans;
+    }
+  void go(int idx, string &word, string &path, vector<string>&ans) {
+    if (idx == word.size()) {
+      ans.push_back(path);
+      return;
+    }
+    ans.push_back(path + tos(word.size() - idx));
+    path += word[idx];
+    go(idx+1, word, path, ans);
+    path.pop_back();
+    string orip = path;
+    for(int i = idx+1; i < word.size(); i++) {
+      path += tos(i - idx);
+      path += word[i];
+      go(i+1, word, path, ans);
+      path = orip;
+    }
+  }
+  
+  string tos(int n) {
+    string ans;
+    while(n) {
+      ans += ('0' + (n%10));
+      n/=10;
+    }
+    reverse(ans.begin(),ans.end());
+    return ans;
+  }
+};
