@@ -40,3 +40,174 @@ and
 111
 are considered same island shapes. Because if we flip the first array in the up/down direction, then they have the same shapes.
 Note: The length of each dimension in the given grid does not exceed 50.
+
+
+
+
+
+#define VI vector<int>
+#define VVI vector<VI>
+
+class Solution {
+    VVI trs(const VVI & vvi){
+        int m = vvi.size();
+        int n = vvi[0].size();
+        VVI res(n,VI(m,0));
+        for(int i =0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                res [j][i] = vvi[i][j];
+            }
+        }
+        return res;
+    }
+    VVI rfH(const VVI & vvi){
+        int m = vvi.size();
+        int n = vvi[0].size();
+        VVI res(m,VI(n,0));
+        for(int i =0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                res [i][j] = vvi[i][n-1-j];
+            }
+        }
+        return res;
+    }
+    VVI rfV(const VVI & vvi){
+        int m = vvi.size();
+        int n = vvi[0].size();
+        VVI res(m,VI(n,0));
+        for(int i =0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                res [i][j] = vvi[m-1-i][j];
+            }
+        }
+        return res;
+    }
+    VVI rt90(const VVI & vvi){
+        return rfH(trs(vvi));
+    }
+    VVI rt180(const VVI & vvi){
+        return rfV(rfH(vvi));
+    }
+    VVI rt270(const VVI & vvi){
+        return rfV(trs(vvi));
+    }
+    bool check(const VVI &a, const VVI &b){
+        int m = a.size();
+        int n = a[0].size();
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                if(a[i][j] != b[i][j])
+                    return false;
+            }
+        }
+        return true;
+    }
+    
+    bool umpinsert(unordered_map<int,set<VVI>>& ump,queue<int>&qsp,int ix, int iy, int lx, int ly){
+        int cnt = qsp.size();
+        VVI vvi(lx,VI(ly,0));
+        while(!qsp.empty()){
+            int key = qsp.front();
+            qsp.pop();
+            vvi[(key>>8)-ix][(key&0xff)-iy] = 1;
+        }
+        if(lx>ly){
+            vvi = trs(vvi);
+            swap(lx,ly);
+        }
+        cnt += ly*10000+lx*1000000;
+        if(!ump.count(cnt)){
+            ump[cnt].insert(vvi);
+            return true;
+        }
+        if((cnt%10000)<=2)
+            return false;
+        auto &tus = ump[cnt];
+        for(auto &i:tus){
+            if(check(vvi,i))
+                return false;
+            if(lx == ly){
+                if(check(vvi,rt90(i)))
+                    return false;
+                if(check(vvi,rt180(i)))
+                    return false;
+                if(check(vvi,rt270(i)))
+                    return false;
+                vvi = trs(vvi);
+                if(check(vvi,i))
+                    return false;
+                if(check(vvi,rt90(i)))
+                    return false;
+                if(check(vvi,rt180(i)))
+                    return false;
+                if(check(vvi,rt270(i)))
+                    return false;
+            }else{
+                if(check(vvi,rt180(i)))
+                    return false;
+                if(check(vvi,rfH(i)))
+                    return false;
+                if(check(vvi,rfV(i)))
+                    return false;
+            }
+            
+        }
+        ump[cnt].insert(vvi);
+        return true;
+    }
+public:
+    int numDistinctIslands2(vector<vector<int>>& grid) {
+        int m = grid.size();
+        if(m==0)return 0;
+        int n = grid[0].size();
+        queue<int>qsp,qn;
+        int minx,miny,maxx,maxy;
+        unordered_map<int,set<VVI>> ump;
+        int res=0;
+        for(int i =0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                if(grid[i][j] == 1){
+                    grid[i][j] = 0;
+                    minx=maxx=i;
+                    miny=maxy=j;
+                    int key = (i<<8)|j;
+                    qn.push(key);
+                    while(!qn.empty()){
+                        int tkey = qn.front();
+                        qn.pop();
+                        qsp.push(tkey);
+                        int tx = tkey>>8;
+                        int ty = tkey&0xff;
+                        if(tx>0&&grid[tx-1][ty]==1){
+                            grid[tx-1][ty] = 0;
+                            key = ((tx-1)<<8)|ty;
+                            qn.push(key);
+                            minx = min(minx,tx-1);
+                        }
+                        if(ty>0&&grid[tx][ty-1]==1){
+                            grid[tx][ty-1] = 0;
+                            key = (tx<<8)|(ty-1);
+                            qn.push(key);
+                            miny = min(miny,ty-1);
+                        }
+                        if(tx<(m-1)&&grid[tx+1][ty]==1){
+                            grid[tx+1][ty] = 0;
+                            key = ((tx+1)<<8)|ty;
+                            qn.push(key);
+                            maxx = max(maxx,tx+1);
+                        }
+                        if(ty<(n-1)&&grid[tx][ty+1]==1){
+                            grid[tx][ty+1] = 0;
+                            key = (tx<<8)|(ty+1);
+                            qn.push(key);
+                            maxy = max(maxy,ty+1);
+                        }
+                    }
+                    if(umpinsert(ump,qsp,minx,miny,maxx-minx+1,maxy-miny+1))
+                        res++;
+                }
+            }
+        }
+        return res;
+    }
+};
