@@ -69,3 +69,38 @@ Output:
   [8,2],
   [7]
 ]
+
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> verticalOrder(TreeNode* root) {
+        map<int,vector<int>>res;
+        queue<pair<int,TreeNode*>>qp;
+        qp.push({0,root});
+        while(!qp.empty()){
+            auto i = qp.front();
+            qp.pop();
+            int col = i.first;
+            TreeNode* cur=  i.second;
+            if(!cur)continue;
+            res[col].push_back(cur->val);
+            qp.push({col-1,cur->left});
+            qp.push({col+1,cur->right});
+        }
+        vector<vector<int>>rr;
+        for(auto i:res){
+            rr.push_back(i.second);
+        }
+        return rr;
+    }
+};
