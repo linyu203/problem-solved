@@ -50,3 +50,50 @@ There is only one ball and one destination in the maze.
 Both the ball and the destination exist on an empty space, and they will not be at the same position initially.
 The given maze does not contain border (like the red rectangle in the example pictures), but you could assume the border of the maze are all walls.
 The maze contains at least 2 empty spaces, and both the width and height of the maze won't exceed 100.
+
+
+
+
+class Solution {
+    //dir 0 up, 1 right, 2 down, 3 left
+    const  int dir[4][2] = {{-1,0},{0,1},{1,0},{0,-1}};
+    int m,n;
+    pair<int,int> getnext(vector<vector<int>>& maze,int x, int y, int di){
+        int i =1;
+        while(true){
+            int tx= x+dir[di][0]*i;
+            int ty= y+dir[di][1]*i;
+            if(tx<0||ty<0||tx>=m||ty>=n||maze[tx][ty] == 1){
+                break;
+            }
+            i++;
+        }
+        i--; 
+        return {x+dir[di][0]*i,y+dir[di][1]*i};
+    }
+public:
+    bool hasPath(vector<vector<int>>& maze, vector<int>& start, vector<int>& destination) {
+        m =maze.size();
+        if(m==0)return false;
+        n =maze[0].size();
+        queue<pair<int,int>>q;
+        q.push({start[0],start[1]});
+        maze[start[0]][start[1]]=2;
+        while(!q.empty()){
+            int tx = q.front().first;
+            int ty = q.front().second;
+            //cout<<tx<<ty<<endl;
+            q.pop();
+            for(int i = 0; i < 4; i ++){
+                auto j = getnext(maze,tx,ty,i);
+                if(j.first == destination[0] && destination[1]==j.second)
+                    return true;
+                if(maze[j.first][j.second] == 0){
+                    maze[j.first][j.second] = 2;
+                    q.push(j);
+                }
+            }
+        }
+        return false;
+    }
+};
