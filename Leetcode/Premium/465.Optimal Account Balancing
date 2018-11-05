@@ -1,0 +1,146 @@
+465.Optimal Account Balancing
+https://leetcode.com/problems/optimal-account-balancing/
+
+A group of friends went on holiday and sometimes lent each other money. For example, Alice paid for Bill's lunch for $10. Then later Chris gave Alice $5 for a taxi ride. We can model each transaction as a tuple (x, y, z) which means person x gave person y $z. Assuming Alice, Bill, and Chris are person 0, 1, and 2 respectively (0, 1, 2 are the person's ID), the transactions can be represented as [[0, 1, 10], [2, 0, 5]].
+
+Given a list of transactions between a group of people, return the minimum number of transactions required to settle the debt.
+
+Note:
+
+A transaction will be given as a tuple (x, y, z). Note that x ≠ y and z > 0.
+Person's IDs may not be linear, e.g. we could have the persons 0, 1, 2 or we could also have the persons 0, 2, 6.
+Example 1:
+
+Input:
+[[0,1,10], [2,0,5]]
+
+Output:
+2
+
+Explanation:
+Person #0 gave person #1 $10.
+Person #2 gave person #0 $5.
+
+Two transactions are needed. One way to settle the debt is person #1 pays person #0 and #2 $5 each.
+Example 2:
+
+Input:
+[[0,1,10], [1,0,1], [1,2,5], [2,0,5]]
+
+Output:
+1
+
+Explanation:
+Person #0 gave person #1 $10.
+Person #1 gave person #0 $1.
+Person #1 gave person #2 $5.
+Person #2 gave person #0 $5.
+
+Therefore, person #1 only need to give person #0 $4, and all debt is settled.
+
+First calculate the net balance of each one, then the idea is try to find smallest clique that sum up to 0. Once find one, we erase the clique from the balance set and increase the result by n(clique)-1. Optimized with 2Sum and 3Sum.
+
+class Solution {
+    void setErase(unordered_multiset<int>& balance, int v) {
+        auto itr = balance.find(v);
+        if (itr != balance.end()) balance.erase(itr);
+    }
+    int nSum(int cliq, unordered_multiset<int>& balance, int s) {
+        vector<int> bal(balance.begin(), balance.end());
+        if (cliq == 2) {
+            for (int i : bal) 
+                if (balance.count(s-i)) {
+                    setErase(balance, i);
+                    setErase(balance, s-i);
+                    return 1;
+                }
+        } else if (cliq == 3) {
+            sort(bal.begin(), bal.end());
+            for (int i = 0; i < bal.size()-2; ++i) {
+                if (i > 0 && bal[i]==bal[i-1]) continue;
+                for (int j = i+1, k = bal.size()-1; j < k;) {
+                    if (bal[i]+bal[j]+bal[k]<s) ++j;
+                    else if (bal[i]+bal[j]+bal[k]>s) --k;
+                    else {
+                        setErase(balance, bal[i]);
+                        setErase(balance, bal[j]);
+                        setErase(balance, bal[k]);
+                        return 2;
+                    }
+                }
+            }
+        } else {
+            for (int i : bal) {
+                setErase(balance, i);
+                int res = nSum(cliq-1, balance, s-i);
+                if (res != 0) return res+1;
+                balance.insert(i);
+            }
+        }
+        return 0;
+    }
+public:
+    int minTransfers(vector<vector<int>>& transactions) {
+        unordered_multiset<int> balance;
+        unordered_map<int, int> balanceMap;
+        for (auto& v : transactions) {
+            balanceMap[v[0]] -= v[2];
+            balanceMap[v[1]] += v[2];
+        }
+        for (auto& pair : balanceMap) if (pair.second != 0) balance.insert(pair.second);
+        if (balance.size() == 0) return 0;
+        int res = 0, clique = 2;
+        while (clique < balance.size()) {
+            int r = nSum(clique, balance, 0);
+            if (r == 0) clique++;
+            else res += r;
+        }
+        return res+balance.size()-1;
+    }
+};
+
+
+
+class Solution {
+private:
+    bool reduce(vector<int>& balances, int sum, int num) {
+        if(num == 0) {
+            return sum == 0;
+        }
+        for(int i = 0;i < balances.size();i++) {
+            if(balances[i] != 0) {
+                int org = balances[i];
+                balances[i] = 0;
+                if(reduce(balances, sum - org, num - 1)) {
+                    return true;
+                }
+                balances[i] = org; 
+            }
+        }
+        return false;
+    }
+public:
+    int minTransfers(vector<vector<int>>& transactions) {
+        unordered_map< int, int > debts;
+        for( auto &v: transactions ) {
+            debts[ v[0] ] -= v[2];
+            debts[ v[1] ] += v[2];
+        }
+        vector<int> balances;
+        for(auto& debt : debts) {
+            if(debt.second != 0) {
+                balances.push_back(debt.second);
+            }
+        }
+        int count = 0;
+        int n = balances.size();
+        
+        for(int len = 2; len <= n;len++) {
+            while(reduce(balances, 0, len)) {
+                count += len - 1;
+            }
+        }
+        return count;
+    }
+    
+};
