@@ -19,3 +19,68 @@ Note:
 There will be at most 300 operations of Put or Retrieve.
 Year ranges from [2000,2017]. Hour ranges from [00,23].
 Output for Retrieve has no order required.
+
+
+
+
+class LogSystem {
+    multimap<long,int>mp;
+public:
+    LogSystem() {
+        
+    }
+    long getstamp(const string & ts){
+        long sum = 0;
+        long res = 0;
+        int n = ts.size();
+        for(int i = 0; i <= n;i++){
+            if(i==n||ts[i]==':'){
+                res = res*100+sum;
+                sum=0;
+            }else{
+                sum = sum*10+ts[i]-'0';
+            }
+        }
+        return res;
+    }
+    void put(int id, string timestamp) {
+        long ts = getstamp(timestamp);
+        mp.emplace(ts,id);//[ts]=id;
+    }
+    
+    vector<int> retrieve(string s, string e, string gra) {
+        long mask = 1l;
+        if("Year" == gra){
+            mask = 10000000000l;
+        }else if("Month" == gra){
+            mask = 100000000l;
+        }else if("Day" == gra){
+            mask = 1000000l;
+        }else if("Hour" == gra){
+            mask = 10000l;
+        }else if("Minute" == gra){
+            mask = 100l;
+        }else{
+            
+        }
+        long st = getstamp(s);
+        long ed = getstamp(e);
+        st = st/mask*mask;
+        ed = ed/mask*mask+mask;
+        auto pst = mp.lower_bound(st);
+        auto ped = mp.lower_bound(ed);
+        vector<int>res;
+        while(pst!=ped){
+            res.push_back(pst->second);
+            pst++;
+        }
+        return res;
+    }
+};
+
+/**
+ * Your LogSystem object will be instantiated and called as such:
+ * LogSystem obj = new LogSystem();
+ * obj.put(id,timestamp);
+ * vector<int> param_2 = obj.retrieve(s,e,gra);
+ */
