@@ -12,3 +12,25 @@ A word is defined as a sequence of non-space characters.
 The input string does not contain leading or trailing spaces.
 The words are always separated by a single space.
 Follow up: Could you do it in-place without allocating extra space?
+
+
+
+class Solution {
+    void rw(vector<char>& str, int st, int end){
+        while(st<end){
+            swap(str[st++],str[end--]);
+        }
+    }
+public:
+    void reverseWords(vector<char>& str) {
+        int st = 0;
+        int n = str.size();
+        for(int i = 0;i <= n; i++){
+            if(i==n || str[i]==' '){
+                rw(str,st,i-1);
+                st = i+1;
+            }
+        }
+        rw(str,0,n-1);
+    }
+};
