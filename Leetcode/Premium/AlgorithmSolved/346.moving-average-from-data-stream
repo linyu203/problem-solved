@@ -9,3 +9,34 @@ m.next(1) = 1
 m.next(10) = (1 + 10) / 2
 m.next(3) = (1 + 10 + 3) / 3
 m.next(5) = (10 + 3 + 5) / 3
+
+
+
+class MovingAverage {
+public:
+    /** Initialize your data structure here. */
+    const int len;
+    double sum;
+    queue<int>q;
+    MovingAverage(int size):len(size) {
+        sum = 0.0;
+    }
+    
+    double next(int val) {
+        sum += val;
+        q.push(val);
+        int curlen = q.size();
+        if(curlen>len){
+            sum -= q.front();
+            q.pop();
+            curlen--;
+        }
+        return sum/curlen;
+    }
+};
+
+/**
+ * Your MovingAverage object will be instantiated and called as such:
+ * MovingAverage obj = new MovingAverage(size);
+ * double param_1 = obj.next(val);
+ */
