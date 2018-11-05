@@ -1,0 +1,132 @@
+248. Strobogrammatic Number III
+https://leetcode.com/problems/strobogrammatic-number-iii/
+
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Write a function to count the total strobogrammatic numbers that exist in the range of low <= num <= high.
+
+Example:
+
+Input: low = "50", high = "100"
+Output: 3 
+Explanation: 69, 88, and 96 are three strobogrammatic numbers.
+Note:
+Because the range might be a large number, the low and high numbers are represented as string.
+
+int strobogrammaticInRange(string low, string high) {
+    // 4 options to start
+    int o1 = helper("", low, high);
+    int o2 = helper("0", low, high);
+    int o3 = helper("1", low, high);
+    int o4 = helper("8", low, high);
+    return o1 + o2 + o3 + o4;
+}
+int helper(string cur, string low, string high){
+    if(cur.size() > high.size()) return 0; // terminate condition
+    int res = 0;
+    // Check if the current number satisfies the requirement
+    if(compare(low, cur) && compare(cur, high)){
+        if(cur.size() == 1 || cur.size() > 1 && cur[0] != '0')
+            res++;
+    }
+    // 5 options
+    int o1 = helper("1" + cur + "1", low, high);
+    int o2 = helper("8" + cur + "8", low, high);
+    int o3 = helper("0" + cur + "0", low, high);
+    int o4 = helper("6" + cur + "9", low, high);
+    int o5 = helper("9" + cur + "6", low, high);
+    res += o1 + o2 + o3 + o4 + o5;
+    return res;
+}
+// compare string a and string b, if a <= b return true, if a > b return false.
+bool compare(string a, string b){
+    if(a.size() != b.size()) return a.size() < b.size();
+    for(int i = 0; i < a.size(); i++){
+        if(a[i] < b[i]) return true;
+        if(a[i] > b[i]) return false;
+    }
+    return true;
+}
+
+
+
+
+
+
+sample 0 ms submission
+class Solution {
+public:
+    vector<int> candidate = {0,1,8,6,9};
+    bool cmp(const string& a, const string& b)
+    {
+        int i = 0;
+        while(i < a.size() && i < b.size() && a[i] == b[i])
+            i++;
+        if(i < a.size() && i < b.size() && a[i] > b[i]) return false;
+        return true;
+    }
+    void brute(string cur, int& ans, const string& low, const string& high, const int len)
+    {
+        if (cur.size() == len/2)
+        {
+            auto str = cur;
+            reverse(str.begin(), str.end());
+            for (int i = 0; i < str.size(); i++)
+                if (str[i] == '6')
+                    str[i] = '9';
+                else if (str[i] == '9')
+                    str[i] = '6';
+            // cout << cur + str<< endl;
+            // cout << len << endl;
+            if(len%2)
+            {
+                for(int i = 0; i < 3; i++)
+                {
+                    string tmp = to_string(candidate[i]);
+                    if ((len > low.size() || cmp(low, cur + tmp + str)) && (len < high.size() || cmp(cur + tmp + str, high)))
+                        ans++;
+                }
+            }
+            else
+            {
+                // cout << cur << "\t" << cmp(low, cur) << "\t" << cmp(cur, high) << endl;
+                if ((len > low.size() || cmp(low, cur + str)) && (len < high.size() || cmp(cur + str, high)))
+                {
+                    // cout << "fuck you!\n";
+                    ans ++;
+                }
+            }
+            return;
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            if (cur.size() > 0 || i > 0 || len == 1)
+            {
+                cur.push_back(candidate[i]+'0');
+                // cout << cur << "\t" << cmp(low, cur) << "\t" << cmp(cur, high) << endl;
+                if ((len > low.size() || cmp(low, cur)) && (len < high.size() || cmp(cur, high)))
+                {
+                    brute(cur, ans, low, high, len);
+                }
+                cur.pop_back();
+            }
+        }
+    }
+    int strobogrammaticInRange(string low, string high) {
+        int count = 0;
+        for(int i = low.size() + 1; i <= high.size() - 1; i++)
+        {
+            if (i % 2)
+            {
+                count += 4 * 3 * pow(5, i/2 - 1);
+            }
+            else
+                count += 4 * pow(5, i/2 - 1);
+        }
+        if (high.size() >= low.size())
+            brute("", count, low, high, low.size());
+        if(low.size() < high.size())
+            brute("", count, low, high, high.size());
+        return count;
+    }
+};
