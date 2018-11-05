@@ -51,3 +51,99 @@ The input sentence will always start with a letter and end with '#', and only on
 The number of complete sentences that to be searched won't exceed 100. The length of each sentence including those in the historical data won't exceed 100.
 Please use double-quote instead of single-quote when you write test cases even for a character input.
 Please remember to RESET your class variables declared in class AutocompleteSystem, as static/class variables are persisted across multiple test cases. Please see here for more details.
+
+
+
+
+class AutocompleteSystem {
+    struct Trie{
+        int cnt;
+        Trie * next[27];
+        string s;
+        Trie(){cnt=0; for(int i=0; i < 27; i++)next[i]=NULL;s="";}
+        Trie(const string& cs){cnt=0; for(int i=0; i < 27; i++)next[i]=NULL;s=cs;}
+    }*head,*save;
+    string sinput;
+    struct com{
+        bool operator ()(pair<int,string> &a, pair<int,string>&b){
+            if(a.first==b.first)return a.second<b.second;
+            return a.first>b.first;
+        }
+    };
+    vector<string> getstring(Trie * root, int cc){
+        priority_queue<pair<int,string>,vector<pair<int,string>>,com> pq;
+        queue<Trie*>q;
+        q.push(root);
+        while(!q.empty()){
+            auto ptrie = q.front();
+            q.pop();
+            if(ptrie->cnt){
+                pq.push({ptrie->cnt,ptrie->s});
+                if(pq.size()>cc) pq.pop();
+            }
+            for(int i = 0; i < 27; i++)
+                if(ptrie->next[i]) q.push(ptrie->next[i]);
+        }
+        vector<string> res(pq.size());
+        for(int i = res.size()-1; i>=0; i--){
+            res[i] = pq.top().second;
+            pq.pop();
+        }
+        return res;
+    }
+    vector<string> searchTrie(char c,int cnt){
+        if(!save)return{};
+        int idx =0;
+        if(c==' ') idx=26;
+        else idx = c-'a';
+        save= save->next[idx];
+        if(!save){
+            return{};
+        }
+        return getstring(save,cnt);
+    }
+    void addTrie(const string &s,int addcnt){
+        if(save){
+            save->cnt+=addcnt;
+            return;
+        }
+        Trie *cur=head;
+        int idx =0;
+        string curs;
+        for(char c:s){
+            curs+=c;
+            if(c==' ') idx=26;
+            else idx = c-'a';
+            if(!cur->next[idx]) cur->next[idx] = new Trie(curs);
+            cur= cur->next[idx];
+        }
+        cur->cnt+=addcnt;
+    }
+public:
+    AutocompleteSystem(vector<string> s, vector<int> t) {
+        head = new Trie;
+        save = nullptr;
+        int n = t.size();
+        for(int i = 0; i < n; i++)
+            addTrie(s[i],t[i]);
+        save = head;
+    }
+    
+    vector<string> input(char c) {
+        if(c == '#'){
+            addTrie(sinput,1);
+            sinput.clear();
+            save=head;
+        }else{
+            sinput.push_back(c);
+            return searchTrie(c,3);
+        }
+        return {};
+    }
+};
+
+/**
+ * Your AutocompleteSystem object will be instantiated and called as such:
+ * AutocompleteSystem obj = new AutocompleteSystem(sentences, times);
+ * vector<string> param_1 = obj.input(c);
+ */
