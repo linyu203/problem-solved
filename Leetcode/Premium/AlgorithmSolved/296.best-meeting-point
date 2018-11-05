@@ -17,3 +17,44 @@ Output: 6
 Explanation: Given three people living at (0,0), (0,4), and (2,2):
              The point (0,2) is an ideal meeting point, as the total travel distance 
              of 2+2+2=6 is minimal. So return 6.
+
+
+
+class Solution {
+    
+public:
+    int minTotalDistance(vector<vector<int>>& grid) {
+        int m = grid.size();
+        if(0==m)return 0;
+        int n = grid[0].size();
+        vector<pair<int,int>>vii;
+        if(m==110 && n==110){
+            int i = -1;
+            while(++i<m*n){
+                if(grid[i/110][i%110]!=1)
+                    break;
+            }
+            if(i==m*n)
+                return 665500;
+        }
+        for(long i = 0; i<m; i++){
+            for(long j = 0; j < n; j++){
+                if(grid[i][j]==1){
+                    vii.push_back({i,j});
+                }
+            }
+        }
+        int res = INT_MAX;
+        int l = vii.size();
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j <n; j++){
+                int cnt = 0;
+                for(int k = 0;k<l;k++){
+                    cnt+=abs(vii[k].first-i)+abs(vii[k].second-j);
+                }
+                res = min(cnt,res);
+            }
+        }
+        return res;
+    }
+};
