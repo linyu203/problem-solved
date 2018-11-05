@@ -17,3 +17,29 @@ Input: buf = "abcde", n = 5
 Output: "abcde"
 Note:
 The read function will only be called once for each test case.
+
+
+
+// Forward declaration of the read4 API.
+int read4(char *buf);
+
+class Solution {
+public:
+    /**
+     * @param buf Destination buffer
+     * @param n   Maximum number of characters to read
+     * @return    The number of characters read
+     */
+    int read(char *buf, int n) {
+        char sb[5];
+        int getcn = 4;
+        int res = 0;
+        while((res<n) &&(getcn==4) &&(getcn= read4(sb))){
+            for(int i = res; (i < (res+getcn))&&(i<n); i++){
+                buf[i]=sb[i-res];
+            }
+            res += getcn;
+        }
+        return min(n,res);
+    }
+};
