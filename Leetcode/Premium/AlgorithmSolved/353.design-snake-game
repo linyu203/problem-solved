@@ -49,7 +49,6 @@ snake.move("L"); -> Returns 2 (Snake eats the second food)
 snake.move("U"); -> Returns -1 (Game over because snake collides with border)
 
 
-
 class SnakeGame {
 public:
     /** Initialize your data structure here.
@@ -57,19 +56,26 @@ public:
         @param height - screen height 
         @param food - A list of food positions
         E.g food = [[1,1], [1,0]] means the first food is positioned at [1,1], the second is at [1,0]. */
-    vector<string> board;
-    vector<pair<int,int>> f;
-    int curidx,snakelen,bw,bh;
-    pair<int,int> curhead,curtail;
-    SnakeGame(int width, int height, vector<pair<int, int>> food):f(food),bw(width),bh(height){
-        board.resize(height);
-        string t(width,' ');
-        for(int i = 0; i < height; i++)
-            board[i]=t;
-        board[0][0]='S';
-        board[f[0].first][f[0].second] = 'F';
-        curidx=snakelen=1;
-        curhead=curtail={0,0};
+    queue<int>qf,qsn;
+    unordered_set<int> us;
+    pair<int,int>head;
+    int m,n,curfood;
+    SnakeGame(int width, int height, vector<pair<int, int>> food) {
+        m=height;
+        n=width;
+        for(auto i:food){
+            qf.push((i.first<<16|i.second));
+        }
+        us.insert(0);
+        head = {0,0};
+        if(!qf.empty()){
+            auto f = qf.front();
+            qf.pop();
+            curfood = f;
+        }else{
+            curfood = -1;
+        }
+        qsn.push(0);
     }
     
     /** Moves the snake.
@@ -77,33 +83,49 @@ public:
         @return The game's score after the move. Return -1 if game over. 
         Game over when snake crosses the screen boundary or bites its body. */
     int move(string direction) {
-        int curx = curhead.first;
-        int cury = curhead.second;
-        if("U" == direction){
+        int &curx = head.first;
+        int &cury = head.second;
+        if("U"==direction){
             curx--;
-        }else if("L" == direction){
-            cury--;
-        }else if("R" == direction){
-            cury++;
-        }else if("D" == direction){
+        }else if("D"==direction){
             curx++;
+        }else if("L"==direction){
+            cury--;
+        }else if("R"==direction){
+            cury++;
         }
-        if(curx>=bh|| curx<0||cury>=bw||cury<0){
+        if(curx>=m||curx<0||cury>=n||cury<0){
             return -1;
         }
-        if(board[curx][cury] == 'S'&&(curx!=curtail.first || cury != curtail.second)){
+        int key = curx<<16|cury;
+        if(curfood == key){
+            qsn.push(key);
+            us.insert(key);
+            if(!qf.empty()){
+                auto f = qf.front();
+                qf.pop();
+                curfood = f;
+            }else{
+                curfood = -1;
+            }
+            return qsn.size()-1;
+        }
+        auto i=qsn.front();
+        qsn.pop();
+        us.erase(i);
+        if(us.count(key)){
             return -1;
         }
-        if(board[curx][cury] == 'F'){
-            snakelen++;
-            board[curx][cury] = 'S';
-            
-        }
+        qsn.push(key);
+        us.insert(key);
+        return qsn.size()-1;
     }
+
 };
+
 
 /**
  * Your SnakeGame object will be instantiated and called as such:
  * SnakeGame obj = new SnakeGame(width, height, food);
  * int param_1 = obj.move(direction);
- */
+ */*/
