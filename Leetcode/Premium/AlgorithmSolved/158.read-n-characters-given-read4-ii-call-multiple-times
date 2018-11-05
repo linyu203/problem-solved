@@ -20,3 +20,37 @@ Example 2:
 Given buf = "abc"
 read("abc", 4) // returns "abc"
 read("abc", 1); // returns ""
+
+
+
+// Forward declaration of the read4 API.
+int read4(char *buf);
+
+class Solution {
+public:
+    /**
+     * @param buf Destination buffer
+     * @param n   Maximum number of characters to read
+     * @return    The number of characters read
+     */
+    char sbuf[5];
+    int idx=5;
+    int lastred =-1;
+    int read(char *buf, int n) {
+        int cntres = 0;
+        if(n==0)return 0;
+        while(true){
+            while(idx<lastred){
+                buf[cntres++]=sbuf[idx++];
+                if(cntres==n)
+                    return n;
+            }
+            idx = 0;
+            lastred = read4(sbuf);
+            if(lastred==0){
+                break;
+            }
+        }
+        return cntres;
+    }
+};
