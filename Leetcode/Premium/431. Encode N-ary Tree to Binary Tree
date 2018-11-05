@@ -1,0 +1,120 @@
+431. Encode N-ary Tree to Binary Tree
+https://leetcode.com/problems/encode-n-ary-tree-to-binary-tree/
+
+
+Design an algorithm to encode an N-ary tree into a binary tree and decode the binary tree to get the original N-ary tree. An N-ary tree is a rooted tree in which each node has no more than N children. Similarly, a binary tree is a rooted tree in which each node has no more than 2 children. There is no restriction on how your encode/decode algorithm should work. You just need to ensure that an N-ary tree can be encoded to a binary tree and this binary tree can be decoded to the original N-nary tree structure.
+
+For example, you may encode the following 3-ary tree to a binary tree in this way:
+
+ 
+
+
+
+ 
+
+Note that the above is just an example which might or might not work. You do not necessarily need to follow this format, so please be creative and come up with different approaches yourself.
+
+ 
+
+Note:
+
+N is in the range of [1, 1000]
+Do not use class member/global/static variables to store states. Your encode and decode algorithms should be stateless.
+
+
+The problem asks for how you encode the Node tree, what I do is just add all kids as right TreeNodes, then add all Node kids of these TreeNodes as left TreeNodes and so on, every time you swap your direction, kind like wiggle , make the width of Node tree to the depth of TreeNode tree.
+//72ms
+class Codec {
+public:
+
+void encodeHelp(Node* root, TreeNode* r, bool dir) {
+    if(dir) {
+        for (int i =0; i < root->children.size(); i++) {
+            r->right = new TreeNode(root->children[i]->val);
+            r = r->right;
+            encodeHelp(root->children[i], r, false);
+        }
+    } else {
+        for (int i =0; i < root->children.size(); i++) {
+            r->left = new TreeNode(root->children[i]->val);
+            r = r->left;
+            encodeHelp(root->children[i], r, true);
+        }
+    }
+}
+// Encodes an n-ary tree to a binary tree.
+TreeNode* encode(Node* root) {
+    if(!root)
+        return NULL;
+    
+    TreeNode* r = new TreeNode(root->val);
+    encodeHelp(root,r,true);
+    return r;
+}
+
+void decodeHelp(Node* root, TreeNode* r, bool dir) {
+    if(dir) {
+        while (r->right) {
+            root->children.push_back(new Node(r->right->val,{}));
+            decodeHelp(root->children.back(), r->right, false);
+            r = r->right;
+        }
+    } else {
+        while (r->left) {
+            root->children.push_back(new Node(r->left->val,{}));
+            decodeHelp(root->children.back(), r->left, true);
+            r = r->left;
+        }
+    }
+}
+
+//Decodes your binary tree to an n-ary tree.
+Node* decode(TreeNode* root) {
+    if(!root)
+        return NULL;
+    
+    Node* r = new Node(root->val,{});
+    decodeHelp(r, root, true);
+    return r;
+}
+};
+
+
+
+//64ms
+class Codec {
+public:
+
+    // Encodes an n-ary tree to a binary tree.
+    TreeNode* encode(Node* root) {
+        if (root == nullptr) return nullptr;
+        
+        TreeNode* treeNode = new TreeNode(root->val);
+        
+        treeNode->left = new TreeNode(-1);
+        TreeNode* prev = treeNode->left;
+        for (Node* n : root->children)
+        {
+            TreeNode* c = encode(n);
+            prev->right = c;
+            prev = c;
+        }
+        TreeNode* dummy = treeNode->left;
+        treeNode->left = treeNode->left ? treeNode->left->right : nullptr;
+        delete dummy;
+        return treeNode;
+    }
+
+    // Decodes your binary tree to an n-ary tree.
+    Node* decode(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+        Node* node = new Node(root->val, {});
+        TreeNode* curr = root->left;
+        while (curr)
+        {
+            node->children.push_back(decode(curr));
+            curr = curr->right;
+        }
+        return node;
+    }
+};
