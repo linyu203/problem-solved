@@ -16,3 +16,20 @@ Example 3:
 
 Input:  "962"
 Output: false
+
+
+class Solution {
+public:
+    bool isStrobogrammatic(string num) {
+        const int rotate[10] = {0,1,-1,-1,-1,-1,9,-1,8,6};
+        int i = 0;
+        int j = num.size()-1;
+        while(i<=j){
+            int a = num[i++]-'0';
+            int b = num[j--]-'0';
+            if(rotate[a]!=b)
+                return false;
+        }
+        return true;
+    }
+};
