@@ -16,3 +16,49 @@ Example 2:
 add(3); add(1); add(2);
 find(3) -> true
 find(6) -> false
+
+
+
+class TwoSum {
+public:
+    /** Initialize your data structure here. */
+    unordered_set<int>us,towsum;
+    int rl,rr;
+    TwoSum() {
+        rl=INT_MAX;
+        rr=INT_MIN;
+    }
+    
+    /** Add the number to an internal data structure.. */
+    void add(int number) {
+        if(us.count(number)){
+            towsum.insert(number*2);
+        }else{
+            us.insert(number);
+        }
+        rl = min(rl,number*2);
+        rr = max(rr,number*2);
+    }
+    
+    /** Find if there exists any pair of numbers which sum is equal to the value. */
+    bool find(int value) {
+        if(value>rr|| value<rl)return false;
+        if(0==value%2 && towsum.count(value)){
+            return true;
+        }else{
+            for(auto i:us){
+                if((i*2!=value)&& us.count(value-i)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+
+/**
+ * Your TwoSum object will be instantiated and called as such:
+ * TwoSum obj = new TwoSum();
+ * obj.add(number);
+ * bool param_2 = obj.find(value);
+ */
