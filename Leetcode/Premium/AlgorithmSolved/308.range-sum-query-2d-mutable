@@ -21,3 +21,46 @@ Note:
 The matrix is only modifiable by the update function.
 You may assume the number of calls to update and sumRegion function is distributed evenly.
 You may assume that row1 ≤ row2 and col1 ≤ col2.
+
+
+
+class NumMatrix {
+    const vector<vector<int>> omx;
+    vector<vector<int>> sum;
+    map<int,map<int,int>>mp;
+public:
+    NumMatrix(vector<vector<int>> matrix):omx(matrix) {
+        int m = omx.size();
+        if(m==0)
+            return;
+        int n = omx[0].size();
+        vector<vector<int>> temp(m+1,vector<int>(n+1,0));
+        for(int i = 0; i < m ; i++)
+            for(int j = 0; j < n; j++){
+                temp[i+1][j+1] = omx[i][j]+temp[i+1][j]-temp[i][j]+temp[i][j+1];
+            }
+        sum = temp;
+    }
+    
+    void update(int row, int col, int val) {
+        mp[row][col] = val-omx[row][col];
+        return;
+    }
+    
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        int res = sum[row2+1][col2+1]-sum[row1][col2+1]-sum[row2+1][col1]+sum[row1][col1];
+        for(auto i=mp.lower_bound(row1);i!=mp.upper_bound(row2);i++){
+            for(auto j=i->second.lower_bound(col1);j!=i->second.upper_bound(col2);j++){
+                res += j->second;
+            }
+        }
+        return res;
+    }
+};
+
+/**
+ * Your NumMatrix object will be instantiated and called as such:
+ * NumMatrix obj = new NumMatrix(matrix);
+ * obj.update(row,col,val);
+ * int param_2 = obj.sumRegion(row1,col1,row2,col2);
+ */
