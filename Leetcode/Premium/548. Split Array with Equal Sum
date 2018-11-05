@@ -1,0 +1,107 @@
+548. Split Array with Equal Sum
+https://leetcode.com/problems/split-array-with-equal-sum/
+
+
+Given an array with n integers, you need to find if there are triplets (i, j, k) which satisfies following conditions:
+
+0 < i, i + 1 < j, j + 1 < k < n - 1
+Sum of subarrays (0, i - 1), (i + 1, j - 1), (j + 1, k - 1) and (k + 1, n - 1) should be equal.
+where we define that subarray (L, R) represents a slice of the original array starting from the element indexed L to the element indexed R.
+Example:
+Input: [1,2,1,2,1,2,1]
+Output: True
+Explanation:
+i = 1, j = 3, k = 5. 
+sum(0, i - 1) = sum(0, 0) = 1
+sum(i + 1, j - 1) = sum(2, 2) = 1
+sum(j + 1, k - 1) = sum(4, 4) = 1
+sum(k + 1, n - 1) = sum(6, 6) = 1
+Note:
+1 <= n <= 2000.
+Elements in the given array will be in range [-1,000,000, 1,000,000].
+
+
+
+
+
+
+//221ms
+class Solution {
+public:
+    bool splitArray(vector<int>& nums) {
+        int n = nums.size();
+        if (n < 7) {
+            return false;
+        }
+
+        unordered_map<int, unordered_set<int>> left;
+        int sumi = 0;
+        for(int i = 1; i < n - 5; ++i) {
+            sumi += nums[i - 1];
+
+            int sumj = 0;
+            for (int j = i + 2; j < n - 3; ++j) {
+                sumj += nums[j - 1];
+                if (sumi == sumj) {
+                    left[sumi].insert(j);
+                }
+            }
+        }
+
+        int sumk = 0;
+        for (int k = n - 2; k >= 5; --k) {
+            sumk += nums[k + 1];
+
+            int sumj = 0;
+            for (int j = k - 2; j >= 3; --j) {
+                sumj += nums[j + 1];
+                if (sumk == sumj && left.find(sumk) != left.end() && left[sumk].find(j) != left[sumk].end()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+};
+
+
+//sample 8 ms submission
+
+class Solution {
+public:
+    bool splitArray(vector<int>& nums) {
+        int n = nums.size();
+        if (n < 7) return false;
+        unordered_map<int, unordered_set<int>> sumIndex;
+        vector<int> sums(n, 0);
+        int sum = 0;
+        for (int i = 0; i < n; ++i) {
+            sum += nums[i];
+            sums[i] = sum;
+            sumIndex[sum].insert(i);
+        }
+        for (int i = 1; i < n - 5; ++i) {
+            int s = sums[i-1];
+            if (sumIndex.count(sums[n-1] - s)) {
+                for (int k : sumIndex.at(sums[n-1] - s)) {
+                    if (k < i + 4 || k > n - 2) continue;
+                    int t1 = sums[i] + s;
+                    int t2 = sums[k-1] - s;
+                    if (sumIndex.count(t1) && sumIndex.count(t2)) {
+                        if (sumIndex.at(t1).size() < sumIndex.at(t2).size()) {
+                            for (int jl : sumIndex.at(t1)) {
+                                if (sumIndex[t2].count(jl + 1)) return true;
+                            }
+                        } else {
+                            for (int jr : sumIndex.at(t2)) {
+                                if (sumIndex[t1].count(jr - 1)) return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
