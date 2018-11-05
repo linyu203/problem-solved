@@ -26,3 +26,43 @@ Input: root = [5,3,6,2,4,null,null,1], p = 6
 1
 
 Output: null
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
+        //moris
+        TreeNode* cur=root,*pre,*pr=nullptr;
+        while(cur){
+            if(!cur->left){
+                pr =cur;
+                cur = cur->right;
+            }else{
+                if(pr){
+                    pre = cur;
+                    while(pre->left){
+                        pre = pre->left;
+                    }
+                    pr->right = pre;
+                }
+                pre = cur->left;
+                while(pre->right){
+                    pre = pre->right;
+                }
+                pre->right = cur;
+                cur = cur->left;
+                pre->right->left=nullptr;
+            }
+        }
+        return p->right;
+    }
+};
