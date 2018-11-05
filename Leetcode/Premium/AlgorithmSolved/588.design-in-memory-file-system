@@ -30,3 +30,102 @@ Note:
 You can assume all file or directory paths are absolute paths which begin with / and do not end with / except that the path is just "/".
 You can assume that all operations will be passed valid parameters and users will not attempt to retrieve file content or list a directory or file that does not exist.
 You can assume that all directory names and file names only contain lower-case letters, and same names won't exist in the same directory.
+
+
+
+class FileSystem {
+public:
+    typedef struct fs{
+        const bool isPath;
+        string context;
+        const string name;
+        map<string,fs*> umpnextfs;
+        fs(const string &n, bool isp):name(n),isPath(isp){
+            if(isp)
+            umpnextfs.clear();
+            else
+            context = "";
+        }
+    }fs;
+    fs *root;
+    FileSystem() {
+        root = new fs("/",true);
+    }
+    fs* getpath(const string &path,bool creat){
+        int n = path.size();
+        fs*cur = root;
+        string pn = "";
+        for(int i = 1; i <= n; i++){
+            if(i==n || path[i] == '/'){
+                if("" == pn) continue;
+                if(!cur->umpnextfs.count(pn)){
+                    if(!creat){
+                        break;
+                    }else{
+                        cur->umpnextfs[pn] = new fs(pn,true);
+                    }
+                }
+                cur = cur->umpnextfs[pn];
+                pn = "";
+            }else{
+                pn+=path[i];
+            }
+        }
+        return cur;
+    }
+    vector<string> ls(string path) {
+        fs* pfs = getpath(path,false);
+        if(!pfs)return{};
+        if(!pfs->isPath)return{pfs->name};
+        vector<string>res;
+        for(auto i:pfs->umpnextfs){
+            res.push_back(i.second->name);
+        }
+        return res;
+    }
+    
+    void mkdir(string path) {
+        getpath(path,true);
+    }
+    
+    
+    void addContentToFile(string filePath, string content) {
+        int cnt = filePath.size()-1;
+        while(filePath[cnt]!='/'){
+            cnt--;
+        }
+        string path = filePath.substr(0,cnt);
+        string fn = filePath.substr(cnt+1);
+        string file = fn;//+".doc";
+        fs *pfs = getpath(path,true);
+        if(!pfs->umpnextfs.count(file)){
+            pfs->umpnextfs[file] = new fs(fn,false);
+        }
+        pfs = pfs->umpnextfs[file];
+        pfs->context += content;
+    }
+    
+    string readContentFromFile(string filePath) {
+        int cnt = filePath.size()-1;
+        while(filePath[cnt]!='/'){
+            cnt--;
+        }
+        string path = filePath.substr(0,cnt);
+        string fn = filePath.substr(cnt+1);
+        string file = fn;//+".doc";
+        fs *pfs = getpath(path,false);
+        if(!pfs || !pfs->umpnextfs.count(file))
+            return "";
+        pfs = pfs->umpnextfs[file];
+        return pfs->context;
+    }
+};
+
+/**
+ * Your FileSystem object will be instantiated and called as such:
+ * FileSystem obj = new FileSystem();
+ * vector<string> param_1 = obj.ls(path);
+ * obj.mkdir(path);
+ * obj.addContentToFile(filePath,content);
+ * string param_4 = obj.readContentFromFile(filePath);
+ */
