@@ -22,3 +22,63 @@ Note:
 -1e7 <= x <= 1e7
 Number of operations won't exceed 10000.
 The last four operations won't be called when stack is empty.
+
+
+
+class MaxStack {
+public:
+    /** initialize your data structure here. */
+    multiset<int>ms;
+    stack<int>st;
+    MaxStack() {
+        
+    }
+    
+    void push(int x) {
+        st.push(x);
+        ms.insert(x);
+    }
+    
+    int pop() {
+        int tt = st.top();
+        st.pop();
+        auto i = ms.find(tt);
+        ms.erase(i);
+        return tt;
+    }
+    
+    int top() {
+        return st.top();
+    }
+    
+    int peekMax() {
+        return *(ms.rbegin());
+    }
+    
+    int popMax() {
+        int tt = *(ms.rbegin());
+        auto i = ms.find(tt);
+        ms.erase(i);
+        stack<int>ss;
+        while(tt != st.top()){
+            ss.push(st.top());
+            st.pop();
+        }
+        st.pop();
+        while(!ss.empty()){
+            st.push(ss.top());
+            ss.pop();
+        }
+        return tt;
+    }
+};
+
+/**
+ * Your MaxStack object will be instantiated and called as such:
+ * MaxStack obj = new MaxStack();
+ * obj.push(x);
+ * int param_2 = obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.peekMax();
+ * int param_5 = obj.popMax();
+ */
