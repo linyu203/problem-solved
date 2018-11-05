@@ -42,3 +42,53 @@ You may assume that if a is a prefix of b, then a must appear before b in the gi
 If the order is invalid, return an empty string.
 There may be multiple valid order of letters, return any one of them is fine.
 
+
+
+class Solution {
+public:
+    string alienOrder(vector<string>& words) {
+        unordered_map<char,unordered_set<char>>umpin,umpout;
+        //DAG
+        int n = words.size();
+        if(n==0)return "";
+        string lasts = words[0],cur,res;
+        for(char c:lasts) umpin[c];
+        for(int i = 1;i<n;i++){
+            cur=words[i];
+            int n = cur.size(),j=0;
+            while(j < lasts.size()){
+                if(cur[j]!=lasts[j]){
+                    umpin[cur[j]].insert(lasts[j]);
+                    umpout[lasts[j]].insert(cur[j]);
+                    break;
+                }
+                umpin[cur[j++]];
+            }
+            while(j<n){
+                umpin[cur[j++]];
+            }
+            lasts=cur;
+        }
+        //topologic-sort
+        while(!umpin.empty()){
+            queue<char>q;
+            for(auto i=umpin.begin(); i!=umpin.end();){
+                auto j=i++;
+                if(j->second.size()==0){
+                    q.push(j->first);
+                    umpin.erase(j);
+                }
+            }
+            if(q.empty())return "";
+            while(q.size()){
+                char c = q.front();
+                res +=c;
+                q.pop();
+                for(auto cc:umpout[c]){
+                    umpin[cc].erase(c);
+                }
+            }
+        }
+        return res;
+    }
+};
