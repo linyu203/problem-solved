@@ -20,3 +20,39 @@ Explanation: The Largest BST Subtree in this case is the highlighted one.
              The return value is the subtree's size, which is 3.
 Follow up:
 Can you figure out ways to solve it with O(n) time complexity?
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    int res;
+    int helper(TreeNode * root, int &LL, int &RR){
+        int resl=0,resr=0,val = root->val,lr=0,rl=0;
+        if(root->left)
+            resl = ((resl = helper(root->left,LL,lr)),((val<=lr)?-1:resl));
+        else LL = val;
+        if(root->right)
+            resr = (resr = helper(root->right,rl,RR),((val>=rl)? -1:resr));
+        else RR = val;
+        if(resl>=0&&resr>=0){
+            res = max(res,1+resl+resr);
+            return 1+resl+resr;
+        }
+        return -1;        
+    }
+public:
+    int largestBSTSubtree(TreeNode* root) {
+        if(!root)return 0;
+        res = 1;
+        int ll=0,rr=0;
+        helper(root,ll,rr);
+        return res;
+    }
+};
