@@ -12,3 +12,36 @@ Example 2:
 Input: "ccaabbb"
 Output: 5
 Explanation: t is "aabbb" which its length is 5.
+
+
+class Solution {
+public:
+    int lengthOfLongestSubstringTwoDistinct(string s) {
+        vector<int> idx(52,-1);
+        int pre = 0;
+        int n = s.size();
+        int res = 0;
+        for(int i = 0; i <n; i++){
+            char c = s[i];
+            if(c>='a')
+                idx[c-'a'] = i;
+            else
+                idx[c-'A'+26] = i;
+            int cnt = 0;
+            cnt = 0;
+            int ml = n;
+            for(int j = 0; j < 52; j++){
+                if(idx[j]>=pre){
+                    ml = min(ml,idx[j]);
+                    cnt++;
+                }
+                if(cnt>=3){
+                    pre = ml+1;
+                    break;
+                }
+            }
+            res = max(res,i-pre+1);
+        }
+        return res;
+    }
+};
