@@ -22,3 +22,43 @@ Input: n = 5 and edges = [[0, 1], [1, 2], [2, 3], [3, 4]]
 Output:  1
 Note:
 You can assume that no duplicate edges will appear in edges. Since all edges are undirected, [0, 1] is the same as [1, 0] and thus will not appear together in edges.
+
+
+class Solution {
+    int getpa(int a, vector<int>&pa){
+        if(pa[a]==a)
+            return a;
+        return pa[a]=getpa(pa[a],pa);
+    }
+    void uf(int a, int b, vector<int>&pa){//},vector<int>&cnt){
+        int fa = getpa(a,pa);
+        int fb = getpa(b,pa);
+        if(fa==fb)
+            return;
+        /*if(cnt[fa]<cnt[fb]){
+            pa[fa]=fb;
+            pa[a]=fb;
+            cnt[fb]+=cnt[fa];
+        }else{*/
+            pa[fb]=fa;
+            pa[b]=fa;
+           // cnt[fa]+=cnt[fb];
+        //}
+    }
+public:
+    int countComponents(int n, vector<pair<int, int>>& edges) {
+        vector<int> pa(n,0);
+        //vector<int> cnt(n,1);
+        for(int i=1; i < n; i++)
+            pa[i]=i;
+        for(auto i:edges){
+            uf(i.first,i.second,pa);//,cnt);
+        }
+        int res= 0;
+        for(int i = 0; i < n; i++){
+            if(pa[i]==i)
+                res++;
+        }
+        return res;
+    }
+};
