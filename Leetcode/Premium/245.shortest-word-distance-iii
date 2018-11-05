@@ -1,0 +1,44 @@
+245.shortest-word-distance-iii
+https://leetcode.com/problems/shortest-word-distance-iii/
+
+
+Given a list of words and two words word1 and word2, return the shortest distance between these two words in the list.
+
+word1 and word2 may be the same and they represent two individual words in the list.
+
+Example:
+Assume that words = ["practice", "makes", "perfect", "coding", "makes"].
+
+Input: word1 = “makes”, word2 = “coding”
+Output: 1
+Input: word1 = "makes", word2 = "makes"
+Output: 3
+Note:
+You may assume word1 and word2 are both in the list.
+
+
+Just remember last occurence of each word.
+Also handling case when word1 == word2 requires to check minDist twice.
+
+class Solution {
+public:
+    int shortestWordDistance(vector<string>& words, string word1, string word2) {
+        int last1 = -1, last2 = -1;
+        int minDist = INT_MAX;
+        for (int i = 0; i < words.size(); ++i) {
+            if (word1 == words[i]) {
+                last1 = i;
+            }
+            if (last1 >= 0 and last2 >= 0 and last1 != last2) {
+                minDist = min(minDist, abs(last2 - last1));
+            }
+            if (word2 == words[i]) {
+                last2 = i;
+            }
+            if (last1 >= 0 and last2 >= 0 and last1 != last2) {
+                minDist = min(minDist, abs(last2 - last1));
+            }
+        }
+        return minDist;
+    }
+};
