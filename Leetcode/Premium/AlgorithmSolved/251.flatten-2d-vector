@@ -15,3 +15,41 @@ Explanation: By calling next repeatedly until hasNext returns false,
              the order of elements returned by next should be: [1,2,3,4,5,6].
 Follow up:
 As an added challenge, try to code it using only iterators in C++ or iterators in Java.
+
+
+class Vector2D {
+    vector<vector<int>>vvi;
+    vector<vector<int>>::iterator vvit;
+    vector<int>::iterator vit;
+public:
+    Vector2D(vector<vector<int>>& vec2d):vvi(vec2d) {
+        vvit = vvi.begin();
+        while(vvit!=vvi.end()&&vvit->begin()==vvit->end()){
+            vvit++;
+        }
+        if(vvit!=vvi.end())
+            vit = vvit->begin();
+    }
+
+    int next() {
+        int res= *vit++;
+        while(vit==vvit->end()){
+            vvit++;
+            if(vvit==vvi.end())
+                break;
+            vit = vvit->begin();
+        }
+        return res;
+    }
+
+    bool hasNext() {
+        //cout<<"has"<<endl;
+        return vvit!=vvi.end();
+    }
+};
+
+/**
+ * Your Vector2D object will be instantiated and called as such:
+ * Vector2D i(vec2d);
+ * while (i.hasNext()) cout << i.next();
+ */
