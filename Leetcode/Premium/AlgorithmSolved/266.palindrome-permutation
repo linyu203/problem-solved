@@ -14,3 +14,18 @@ Example 3:
 
 Input: "carerac"
 Output: true
+
+
+class Solution {
+public:
+    bool canPermutePalindrome(string s) {
+        unordered_map<char,int>ump;
+        for(char c:s)ump[c]++;
+        int cnt = 0;
+        for(auto i:ump){
+            if(i.second%2)
+                cnt++;
+        }
+        return cnt<=1;
+    }
+};
