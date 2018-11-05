@@ -36,3 +36,39 @@ Explanation: You can't split the tree into two trees with equal sum after removi
 Note:
 The range of tree node value is in the range of [-100000, 100000].
 1 <= n <= 10000
+
+
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    unordered_set<int>us;
+    TreeNode*rr;
+    int sumtre(TreeNode* root){
+        if(!root)return 0;
+        int res = root->val;
+        res += sumtre(root->left);
+        res += sumtre(root->right);
+        if(rr!=root)
+            us.insert(res);
+        return res;
+    }
+public:
+    bool checkEqualTree(TreeNode* root) {
+        rr = root;
+        int tt = sumtre(root);
+        if(tt%2==0 && us.count(tt/2))
+            return true;
+        return false;
+    }
+};
