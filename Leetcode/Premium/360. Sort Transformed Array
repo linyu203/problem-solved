@@ -1,0 +1,102 @@
+360. Sort Transformed Array
+https://leetcode.com/problems/sort-transformed-array/
+Given a sorted array of integers nums and integer values a, b and c. Apply a quadratic function of the form f(x) = ax2 + bx + c to each element x in the array.
+
+The returned array must be in sorted order.
+
+Expected time complexity: O(n)
+
+Example 1:
+
+Input: nums = [-4,-2,2,4], a = 1, b = 3, c = 5
+Output: [3,9,15,33]
+Example 2:
+
+Input: nums = [-4,-2,2,4], a = -1, b = 3, c = 5
+Output: [-23,-5,1,7]
+
+class Solution {
+private:
+    int eval(int a, int b, int c, int x) {
+        return a * x * x + b * x + c;
+    }
+public:
+    vector<int> sortTransformedArray(vector<int>& nums, int a, int b, int c) {
+        int n = nums.size();
+        vector<int> res(n, 0);
+        int pos1 = 0;
+        int pos2 = n - 1;
+
+        int start = 0;
+        int end = n - 1;
+        while (start <= end) {
+            auto vs = eval(a, b, c, nums[start]);
+            auto ve = eval(a, b, c, nums[end]);
+            if (a > 0) {
+                if (vs >= ve) {
+                    res[pos2--] = vs;
+                    ++start;
+                } else {
+                    res[pos2--] = ve;
+                    --end;
+                }
+            } else {
+                if (vs <= ve) {
+                    res[pos1++] = vs;
+                    ++start;
+                } else {
+                    res[pos1++] = ve;
+                    --end;
+                }
+            }
+        }
+
+        return res;
+    }
+};
+
+
+
+
+class Solution {
+public:
+    int fx(int x, int a, int b, int c){
+        return a*x*x + b*x + c;
+    }
+    vector<int> sortTransformedArray(vector<int>& nums, int a, int b, int c) {
+        vector<int> sortedResult(nums.size(), 0);
+        if(a>=0){
+            int index = nums.size()-1;
+            int low=0, high = nums.size()-1;
+            while(low<=high){
+                int fx1 = fx(nums[low], a, b, c);
+                int fx2 = fx(nums[high], a, b, c);
+                if(fx1>=fx2){
+                    sortedResult[index--] = fx1;
+                    low++;
+                }
+                else{
+                    sortedResult[index--] = fx2;
+                    high--;
+                }
+            }
+        }
+        else{
+            int index = 0;
+            int low=0, high = nums.size()-1;
+            while(low<=high){
+                int fx1 = fx(nums[low], a, b, c);
+                int fx2 = fx(nums[high], a, b, c);
+                if(fx1<=fx2){
+                    sortedResult[index++] = fx1;
+                    low++;
+                }
+                else{
+                    sortedResult[index++] = fx2;
+                    high--;
+                }
+            }
+        }
+        return sortedResult;
+    }
+};
