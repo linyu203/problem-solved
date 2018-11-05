@@ -1,0 +1,105 @@
+666.path-sum-iv
+https://leetcode.com/problems/path-sum-iv/
+
+If the depth of a tree is smaller than 5, then this tree can be represented by a list of three-digits integers.
+
+For each integer in this list:
+The hundreds digit represents the depth D of this node, 1 <= D <= 4.
+The tens digit represents the position P of this node in the level it belongs to, 1 <= P <= 8. The position is the same as that in a full binary tree.
+The units digit represents the value V of this node, 0 <= V <= 9.
+Given a list of ascending three-digits integers representing a binary with the depth smaller than 5. You need to return the sum of all paths from the root towards the leaves.
+
+Example 1:
+Input: [113, 215, 221]
+Output: 12
+Explanation: 
+The tree that the list represents is:
+    3
+   / \
+  5   1
+
+The path sum is (3 + 5) + (3 + 1) = 12.
+Example 2:
+Input: [113, 221]
+Output: 4
+Explanation: 
+The tree that the list represents is: 
+    3
+     \
+      1
+
+The path sum is (3 + 1) = 4.
+
+
+
+class Solution {
+public:
+    int pathSum(vector<int>& nums) {       
+        int res = 0;
+        queue<tuple<int,int,int>> q;
+        q.push({0, 1, 0}); // dummy node on top of first layer        
+        
+        bool hasNext = false;
+        int i = 0, nextD, nextP, nextV;
+        if (i < nums.size()) {
+            hasNext = true;
+            nextD = nums[i] / 100;
+            nextP = (nums[i] / 10) % 10;
+            nextV = nums[i] % 10;      
+            ++i;                        
+        }
+        
+        int D, P, V;        
+        bool add;
+        while (!q.empty()) {
+            for (int len = q.size(); len > 0; --len) {
+                tie(D, P, V) = q.front();
+                q.pop();
+                add = true;
+                while (hasNext && (nextD == D + 1) && (nextP == 2 * P || nextP == 2 * P - 1)) {
+                    add = false;
+                    q.push({nextD, nextP, V + nextV});
+                    hasNext = false;
+                    if (i < nums.size()) {
+                        hasNext = true;
+                        nextD = nums[i] / 100;
+                        nextP = (nums[i] / 10) % 10;
+                        nextV = nums[i] % 10;     
+                        ++i;                        
+                    }
+                }
+                if (add) {
+                    res += V;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+
+
+class Solution {
+public:
+    int pathSum(vector<int>& nums) {
+        unordered_map<int, int> paths;
+        int ret = 0;
+        for (int i = nums.size()-1; i >= 0; i--) {
+            int depth = nums[i]/100;
+            int pos = nums[i]/10%10;
+            int val = nums[i]%10;
+            int child1 = (depth+1)*10+2*pos-1;
+            int child2 = child1+1;
+            int path1 = 0, path2 = 0;
+            if (paths.count(child1))
+                path1 = paths[child1];
+            if (paths.count(child2))
+                path2 = paths[child2];
+            int path = max(path1+path2, 1);
+            ret+=val*path;
+            paths[nums[i]/10] = path;
+        }
+        return ret;
+    }
+};
