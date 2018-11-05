@@ -34,3 +34,47 @@ Explanation:
 3. Now removing the leaf [1] would result in the empty tree:
 
           []         
+
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    vector<vector<int>> res;
+    int dep(TreeNode * root){
+        if(!root->left && !root->right){
+            if(res.empty())
+                res.push_back({root->val});
+            else
+                res[0].push_back(root->val);
+            return 0;
+        }
+        int depl= 0,depr=0;
+        if(root->left){
+            depl=dep(root->left);
+        }
+        if(root->right){
+            depr=dep(root->right);
+        }
+        int rd = max(depl,depr)+1;
+        if(res.size()==rd){
+            res.push_back({root->val});
+        }else{
+            res[rd].push_back(root->val);
+        }
+        return rd;
+    }
+public:
+    vector<vector<int>> findLeaves(TreeNode* root) {
+        if(!root)return {};
+        (void) dep(root);
+        return res;
+    }
+};
