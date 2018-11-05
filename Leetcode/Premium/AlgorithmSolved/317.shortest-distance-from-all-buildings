@@ -22,3 +22,94 @@ Explanation: Given three buildings at (0,0), (0,4), (2,2), and an obstacle at (0
              travel distance of 3+3+1=7 is minimal. So return 7.
 Note:
 There will be at least one building. If it is not possible to build such house according to the above rules, return -1.
+
+
+
+class Solution {
+    inline long getx(long key){
+        return key>>32l;
+    }
+    inline long gety(long key){
+        return key&0xffffffff;
+    }
+    inline long setkey(long x, long y){
+        return (x<<32l)|y;
+    }
+public:
+    int shortestDistance(vector<vector<int>>& grid) {
+        int m = grid.size();
+        if(0==m)return 0;
+        int n = grid[0].size();
+        queue<pair<long,long>>qll;
+        unordered_map<long,unordered_set<long>>ump;
+        //cout<<m<<" "<<n<<endl;
+        int abld = 1;
+        for(long i = 0; i<m; i++){
+            for(long j = 0; j < n; j++){
+                if(grid[i][j]==1){
+                    long kpos = setkey(i,j);
+                    long kbld  = setkey(abld,0);
+                    qll.push({kpos,kbld});
+                    grid[i][j]=-1;
+                    ump[kpos].insert(abld++);
+                }else if(grid[i][j]==2){
+                    grid[i][j]=-2;
+                }
+            }
+        }
+        abld--;
+        while(!qll.empty()){
+            long kpos = qll.front().first;
+            long kbldcnt = qll.front().second;
+            qll.pop();
+            long x = getx(kpos);
+            long y = gety(kpos);
+            long bld = getx(kbldcnt);
+            long cnt = gety(kbldcnt);
+            if(x>0&& grid[x-1][y]>=0){
+                long tpos= setkey(x-1,y);
+                if(!ump.count(tpos)||!ump[tpos].count(bld)){
+                    ump[tpos].insert(bld);
+                    grid[x-1][y]+=cnt+1;
+                    qll.push({tpos,kbldcnt+1});
+                }
+            }
+            if(y>0&& grid[x][y-1]>=0){
+                long tpos= setkey(x,y-1);
+                if(!ump.count(tpos)||!ump[tpos].count(bld)){
+                    ump[tpos].insert(bld);
+                    grid[x][y-1]+=cnt+1;
+                    qll.push({tpos,kbldcnt+1});
+                }
+            }
+            if(x<m-1&& grid[x+1][y]>=0){
+                long tpos= setkey(x+1,y);
+                if(!ump.count(tpos)||!ump[tpos].count(bld)){
+                    ump[tpos].insert(bld);
+                    grid[x+1][y]+=cnt+1;
+                    qll.push({tpos,kbldcnt+1});
+                }
+            }
+            if(y<n-1&& grid[x][y+1]>=0){
+                long tpos= setkey(x,y+1);
+                if(!ump.count(tpos)||!ump[tpos].count(bld)){
+                    ump[tpos].insert(bld);
+                    grid[x][y+1]+=cnt+1;
+                    qll.push({tpos,kbldcnt+1});
+                }
+            }
+        }
+        int res = INT_MAX;
+        for(long i = 0; i < m; i++){
+            for(long j = 0; j <n; j++){
+                if(grid[i][j]>=0){
+                    long tpos = setkey(i,j);
+                    if(ump[tpos].size()==abld){
+                        res = min(res,grid[i][j]);
+                    }
+                }
+            }
+        }
+        return res==INT_MAX?-1:res;
+    }
+};
