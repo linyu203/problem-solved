@@ -36,3 +36,46 @@ Operation #4: addLand(2, 1) turns the water at grid[2][1] into a land.
 Follow up:
 
 Can you do it in time complexity O(k log mn), where k is the length of the positions?
+
+
+
+
+class Solution {
+    long getpa(long a, unordered_map<long,long>&ump){
+        if(ump[a]==a)
+            return a;
+        return ump[a]=getpa(ump[a],ump);
+    }
+    int unionf(long a, long b, unordered_map<long,long>&ump){
+        long fa = getpa(a,ump);
+        long fb = getpa(b,ump);
+        if(fa ==fb) return 0;
+        ump[fb]=fa;
+        ump[b]=fa;
+        return 1;
+    }
+public:
+    vector<int> numIslands2(int m, int n, vector<pair<int, int>>& ps) {
+        unordered_map<long,long>ump;
+        int cnt = 0;
+        vector<int>res;
+        int nvp = ps.size();
+        int dir[4][2]={{-1,0},{0,-1},{1,0},{0,1}};
+        for(int i = 0; i < nvp; i++){
+            long x = ps[i].first;
+            long y = ps[i].second;
+            long key = ((x<<32l)|y),tkey;
+            cnt++;
+            ump[key]=key;
+            int checkc = 0;
+            for(int j = 0; j < 4; j++){
+                tkey = (((x+dir[j][0])<<32l)|(y+dir[j][1]));
+                if(ump.count(tkey))
+                    checkc += unionf(key,tkey,ump);
+            }
+            cnt -= checkc;
+            res.push_back(cnt);
+        }
+        return res;
+    }
+};
