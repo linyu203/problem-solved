@@ -51,3 +51,49 @@ There is only one ball and one destination in the maze.
 Both the ball and the destination exist on an empty space, and they will not be at the same position initially.
 The given maze does not contain border (like the red rectangle in the example pictures), but you could assume the border of the maze are all walls.
 The maze contains at least 2 empty spaces, and both the width and height of the maze won't exceed 100.
+
+
+
+
+class Solution {
+    int m,n;
+    int nextjump(vector<vector<int>>& maze,int &curx, int &cury,int dirx, int diry){
+        int res =0;
+        while(curx>=0&&cury>=0&&curx<m&&cury<n&&maze[curx][cury]!=-1){
+            curx+=dirx;
+            cury+=diry;
+            res++;
+        }
+        curx-=dirx;
+        cury-=diry;
+        res--;
+        return res;
+    }
+public:
+    int shortestDistance(vector<vector<int>>& maze, vector<int>& start, vector<int>& destination) {
+        for(auto &i:maze)
+            for(int &j:i)
+                j*=-1;
+        m = maze.size();
+        n = maze[0].size();
+        maze[start[0]][start[1]]=1;
+        queue<pair<int,int>> q;
+        q.push({start[0],start[1]});
+        const int dir[4][2]={{-1,0},{0,1},{1,0},{0,-1}};
+        while(!q.empty()){
+            int curx = q.front().first;
+            int cury = q.front().second;
+            q.pop();
+            int curstep = maze[curx][cury];
+            for(int i = 0; i < 4; i++){
+                int tcx = curx,tcy = cury;
+                int res = nextjump(maze,tcx,tcy,dir[i][0],dir[i][1]);
+                if(res>0 && (maze[tcx][tcy]==0||maze[tcx][tcy]>(res+curstep))){
+                    maze[tcx][tcy] = res+curstep;
+                    q.push({tcx,tcy});
+                }
+            }
+        }
+        return maze[destination[0]][destination[1]]-1;
+    }
+};
