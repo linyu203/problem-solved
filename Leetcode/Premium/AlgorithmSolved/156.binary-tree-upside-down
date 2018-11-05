@@ -36,3 +36,38 @@ Here's an example:
     \
      5
 The above binary tree is serialized as [1,2,3,#,#,4,#,#,5].
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    TreeNode * res;
+    TreeNode * help(TreeNode* root){
+        if(!root)return nullptr;
+        if(!root->left){
+            return new TreeNode (root->val);
+        }
+        TreeNode *nr = help(root->left);
+        nr->left = help(root->right);
+        nr->right = new TreeNode(root->val);
+        if(!res)
+            res = nr;
+        return nr->right;
+    }
+public:
+    TreeNode* upsideDownBinaryTree(TreeNode* root) {
+        if(!root)return root;
+        res = nullptr;
+        TreeNode*rr = help(root);
+        return res?res:rr;
+    }
+};
