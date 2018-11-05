@@ -1,0 +1,110 @@
+294.flip-game-ii
+https://leetcode.com/problems/flip-game-ii/
+
+
+You are playing the following Flip Game with your friend: Given a string that contains only these two characters: + and -, you and your friend take turns to flip two consecutive "++" into "--". The game ends when a person can no longer make a move and therefore the other person will be the winner.
+
+Write a function to determine if the starting player can guarantee a win.
+
+Example:
+
+Input: s = "++++"
+Output: true 
+Explanation: The starting player can guarantee a win by flipping the middle "++" to become "+--+".
+Follow up:
+Derive your algorithm's runtime complexity.
+
+
+class Solution {
+ private:
+  map<multiset<int>, bool> can_win_cache_;
+  multiset<int> strToPlusStrike(const string &s) {
+    multiset<int> plus_strike;
+    int strike = 0;
+    for (char c : s) {
+      if (c == '+') strike++;
+      else {
+        if (strike > 1) plus_strike.insert(strike);
+        strike = 0;
+      }
+    }
+    if (strike > 1) plus_strike.insert(strike);
+    return plus_strike;
+  }
+  bool canWinImpl(const multiset<int> &plus_strike) {
+    if (can_win_cache_.find(plus_strike) != can_win_cache_.end()) {
+      return can_win_cache_[plus_strike];
+    }
+    for (int plus : plus_strike) {
+      for (int i = 0; i < plus - 1; i++) {
+        multiset<int> next_move(plus_strike);
+        next_move.erase(next_move.find(plus));
+        int left = i;
+        int right = plus - i - 2;
+        if (left > 1) next_move.insert(left);
+        if (right > 1) next_move.insert(right);
+        if (!canWinImpl(next_move)) {
+          can_win_cache_[plus_strike] = true;
+          return true;
+        }
+      }
+    }
+    can_win_cache_[plus_strike] = false;
+    return false;
+  }
+ public:
+  bool canWin(string s) {
+    can_win_cache_[{}] = false;
+    multiset<int> plus_strike = strToPlusStrike(s);
+    return canWinImpl(plus_strike);
+  }
+};
+Cache data using multiset is better than string.
+There is still 2 further optimization. One is to use unordered_map rather than map. Map is RB tree (O(logn) lookup) while unordered_map is hash set (O(1) lookup). However, the pain of using unordered_map is that you need to manually specify a hash function for vector<int>. Code for unordered_map:
+
+struct multiset_hash {
+  std::size_t operator()(const multiset<ElemType> &seq) const {
+    std::size_t hash_value = 0;
+    hash<ElemType> hash_fn;
+    for (const ElemType &elem : seq) {
+      hash_value += hash_fn(elem);
+    }
+    return hash_value;
+  }
+};
+template
+    <typename KeyType, typename ValueType>
+using multiset_map = unordered_map<multiset<KeyType>, ValueType, multiset_hash<KeyType>>;
+Then change "map<multiset, bool> can_win_cache_" to "multiset_map<int, bool> can_win_cache_".
+The other one is to self-maintain number of each element in plus_strike. In this way, you can avoid the O(n) copy to create next_move, but you really need to carefully maintain your for loop iterator because you are looping through a multiset in the meanwhile modifying it.
+
+
+class Solution {
+public:
+    bool canWin(string s) {
+        vector<int> sg(s.length() + 1, 0);
+        for (int i = 2; i <= s.length(); i++) {
+            unordered_set<int> seen;
+            for (int pos = 1; pos < i; pos++) {
+                seen.insert(sg[pos - 1] ^ sg[i - pos - 1]);
+            }
+            while (seen.count(sg[i])) {
+                sg[i]++;
+            }
+        }
+        
+        int result = 0;
+        int count = 0;
+        for (char c : s) {
+            if (c == '+') {
+                count++;
+            } else {
+                result ^= sg[count];
+                count = 0;
+            }
+        }
+        result ^= sg[count];
+        return result;
+    }
+};
+
