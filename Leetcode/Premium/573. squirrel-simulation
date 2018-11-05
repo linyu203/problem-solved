@@ -1,0 +1,68 @@
+573. squirrel-simulation/
+https://leetcode.com/problems/squirrel-simulation/
+
+There's a tree, a squirrel, and several nuts. Positions are represented by the cells in a 2D grid. Your goal is to find the minimal distance for the squirrel to collect all the nuts and put them under the tree one by one. The squirrel can only take at most one nut at one time and can move in four directions - up, down, left and right, to the adjacent cell. The distance is represented by the number of moves.
+Example 1:
+
+Input: 
+Height : 5
+Width : 7
+Tree position : [2,2]
+Squirrel : [4,4]
+Nuts : [[3,0], [2,5]]
+Output: 12
+Explanation:
+​​​​​
+Note:
+
+All given positions won't overlap.
+The squirrel can take at most one nut at one time.
+The given positions of nuts have no order.
+Height and width are positive integers. 3 <= height * width <= 10,000.
+The given positions contain at least one nut, only one tree and one squirrel.
+
+
+
+the only variable in this question is which nut we choose first. Once we choose a nut to take first the rest of the solution is fixed: it is the sum of Manhattan distances of the rest of the nuts to the tree and back. So all we need is to find the sum of all nut's distances to the tree and back - denote it as sum. Then for each nut we remove the distance of this nut from the sum and add instead the distance of the squirrel to that nut. The minimum yielded for all nuts is the answer.
+
+class Solution {
+public:
+   
+    #define DIST(n,e)\
+        (abs(n[0] - e[0]) + abs(n[1] - e[1]))
+    
+     int minDistance(int height, int width, vector<int>& tree, vector<int>& squirrel, vector<vector<int>>& nuts) {
+        
+        int sum = 0;
+        
+        for(const auto &n : nuts) {
+            sum += 2*DIST(n,tree);
+        }
+        
+        int minDist = INT_MAX;
+        
+        for(const auto &n : nuts){
+            int dist = sum - DIST(n,tree) + DIST(n,squirrel);
+            minDist = min(minDist,dist);
+        }
+        
+        return minDist;
+    }
+};
+
+
+
+class Solution {
+public:
+    int minDistance(int height, int width, vector<int>& tree, vector<int>& squirrel, vector<vector<int>>& nuts) {
+        int dist = 0;
+        int k = INT_MAX;
+        for( int i = 0 ; i < nuts.size() ; ++i ){
+            #define DIST( x , y )   ( abs( x[0] - y[0] ) + abs( x[1] - y[1] ) )
+            
+            dist += 2 * DIST( tree , nuts[i] );
+            k = min( k , DIST( squirrel , nuts[i] ) - DIST( tree , nuts[i] ) );
+        }
+        return dist + k;
+    }
+};
