@@ -48,3 +48,90 @@ The robot's initial position will always be in an accessible cell.
 The initial direction of the robot will be facing up.
 All accessible cells are connected, which means the all cells marked as 1 will be accessible by the robot.
 Assume all four edges of the grid are all surrounded by wall.
+
+
+
+/**
+ * // This is the robot's control interface.
+ * // You should not implement it, or speculate about its implementation
+ * class Robot {
+ *   public:
+ *     // Returns true if the cell in front is open and robot moves into the cell.
+ *     // Returns false if the cell in front is blocked and robot stays in the current cell.
+ *     bool move();
+ *
+ *     // Robot will stay in the same cell after calling turnLeft/turnRight.
+ *     // Each turn will be 90 degrees.
+ *     void turnLeft();
+ *     void turnRight();
+ *
+ *     // Clean the current cell.
+ *     void clean();
+ * };
+ */
+class Solution {
+    unordered_set<long>uset;
+    long curx;
+    long cury;
+    int curdir;//1up,2right,3down,4left;
+    void adddir(void){
+        curdir++;
+        if(curdir>=5) curdir=1;
+    }
+    void minusdir(void){
+        curdir--;
+        if(curdir<=0) curdir=4;
+    }
+    bool checknextmove(Robot&rb,bool checkmap){
+        long tx = curx,ty=cury;
+        if(curdir==1){
+            tx--;
+        }else if(curdir==2){
+            ty++;
+        }else if(curdir==3){
+            tx++;
+        }else{
+            ty--;
+        }
+        long key = ((tx<<32l)+ty);
+        if(checkmap && uset.count(key))return false;
+        if(rb.move()){
+            curx=tx;
+            cury=ty;
+            return true;
+        }
+        return false;
+    }
+    
+    void dfs(Robot&rb){
+        rb.clean();
+        long key = ((curx<<32l)+cury);
+        uset.insert(key);
+        bool checkmap = true;
+        for(int i=0; i < 4;i++){
+            if(i>0){
+                rb.turnRight();
+                adddir();
+            }else{
+                rb.turnLeft();
+                minusdir();
+            }
+            if(i==3&&(!(curx==0 && cury==0))){
+                checknextmove(rb,false);
+            }else if(checknextmove(rb,true)){
+                dfs(rb);
+            }
+        }
+        rb.turnRight();
+        adddir();
+        rb.turnRight();
+        adddir();
+    }
+public:
+    void cleanRoom(Robot& rb) {
+        curx=0;
+        cury=0;
+        curdir=1;
+        dfs(rb);
+    }
+};
