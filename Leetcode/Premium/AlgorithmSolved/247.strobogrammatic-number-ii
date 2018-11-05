@@ -8,3 +8,38 @@ Example:
 
 Input:  n = 2
 Output: ["11","69","88","96"]
+
+
+
+class Solution {
+    const int rotate[10] = {0,1,-1,-1,-1,-1,9,-1,8,6};
+    const int check[5]= {0,1,6,8,9};
+    vector<string>res;
+    void help(string s, int i, int j){
+        if(i>j){
+            res.push_back(s);
+            return;
+        }else if(i==j){
+            s[i] = '0';
+            res.push_back(s);
+            s[i] = '1';
+            res.push_back(s);
+            s[i] = '8';
+            res.push_back(s);
+            return;
+        }
+        for(int idx =0; idx<5; idx++){
+            if(idx+i==0)continue;
+            s[i] = check[idx]+'0';
+            s[j] = rotate[check[idx]]+'0';
+            help(s,i+1,j-1);
+        }
+        return;
+    }
+public:
+    vector<string> findStrobogrammatic(int n) {
+        string s(n,' ');
+        help(s,0,n-1);
+        return res;
+    }
+};
