@@ -1,0 +1,103 @@
+356. Line Reflection
+Given n points on a 2D plane, find if there is such a line parallel to y-axis that reflect the given points.
+
+Example 1:
+
+Input: [[1,1],[-1,1]]
+Output: true
+Example 2:
+
+Input: [[1,1],[-1,-1]]
+Output: false
+Follow up:
+Could you do better than O(n2) ?
+
+
+class Solution {
+public:
+    bool isReflected(vector<pair<int, int>>& points) {
+        
+        if (points.size() == 0) {
+            return true;
+        }
+        
+        std::set<std::pair<int, int>> xy_values;
+                
+        int x_min = points[0].first;
+        int x_max = points[0].first;
+        
+        for (const auto& coord : points) {
+            
+            xy_values.insert(coord);
+            
+            x_min = std::min(x_min, coord.first);
+            x_max = std::max(x_max, coord.first);        
+        }
+        
+        double x_target = (static_cast<double>(x_min) + x_max) / 2;
+        
+        for (const auto& coord : xy_values) {
+            
+            double length = x_target - coord.first;
+            
+            if (xy_values.count({coord.first + 2 * length, coord.second}) == 0) {
+                return false;
+            }
+
+        }
+                
+        return true;
+    }
+};
+
+Alternatively, one can provide a hash function for std::pair in order to use unordered_set.
+
+class Solution {
+public:
+    
+ 
+    bool isReflected(vector<pair<int, int>>& points) {
+        
+        if (points.size() == 0) {
+            return true;
+        }
+        
+        struct pair_hash {
+            inline std::size_t operator()(const std::pair<int,int> & v) const {
+                return v.first * 97 + v.second;
+            }
+        };
+        
+        std::unordered_set<std::pair<int, int>, pair_hash> xy_values;
+        
+        
+        int x_min = points[0].first;
+        int x_max = points[0].first;
+        
+        for (const auto& coord : points) {
+            
+            xy_values.insert(coord);
+            
+            x_min = std::min(x_min, coord.first);
+            x_max = std::max(x_max, coord.first);
+            
+        }
+        
+        double x_target = (static_cast<double>(x_min) + x_max) / 2;
+        
+        
+        for (const auto& coord : xy_values) {
+            
+            double length = x_target - coord.first;
+            
+            if (xy_values.count({coord.first + 2 * length, coord.second}) == 0) {
+                return false;
+            }
+                
+
+        }
+        
+       
+        return true;
+    }
+};
