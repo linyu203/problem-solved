@@ -1,0 +1,103 @@
+358. Rearrange String K Distance Apart
+https://leetcode.com/problems/rearrange-string-k-distance-apart/
+
+Given a non-empty string s and an integer k, rearrange the string such that the same characters are at least distance k from each other.
+
+All input strings are given in lowercase letters. If it is not possible to rearrange the string, return an empty string "".
+
+Example 1:
+
+Input: s = "aabbcc", k = 3
+Output: "abcabc" 
+Explanation: The same letters are at least distance 3 from each other.
+Example 2:
+
+Input: s = "aaabc", k = 3
+Output: "" 
+Explanation: It is not possible to rearrange the string.
+Example 3:
+
+Input: s = "aaadbbcc", k = 2
+Output: "abacabcd"
+Explanation: The same letters are at least distance 2 from each other.
+
+
+The idea is simple: for each iteration, we find a character to append to the final string until every character is appended.
+
+While i < str.size()
+Find a character that satisfies:
+a. Its last position is at least k steps away, i.e., <= i - k.
+b. It is the most frequent one, i.e., has the largest count.
+If we couldn't find one, return empty string
+Otherwise, append it to the final string, decrease its count.
+class Solution
+{
+ public:
+  string rearrangeString(string str, int k)
+  {
+    vector<int> cnt(26, 0), pos(26, -k);
+    for (char c : str) ++cnt[c - 'a'];
+
+    string ret;
+    for (int i = 0, maxcnt, maxpos; i < str.size(); ++i) {
+      maxcnt = 1, maxpos = -1;
+      for (int j = 0; j < 26; ++j)
+        if (pos[j] <= i - k && cnt[j] >= maxcnt) maxpos = j, maxcnt = cnt[j];
+      if (maxpos < 0) return "";
+
+      ret += char(maxpos + 'a');
+      --cnt[maxpos];
+      pos[maxpos] = i;
+    }
+    return ret;
+  }
+};
+
+
+class Solution {
+    private:
+    class cmp {
+        public:
+        bool operator()(const pair<int,int>& lhs, const pair<int,int>& rhs){
+             return lhs.first < rhs.first;
+        }
+    };
+    
+public:
+    string rearrangeString(string s, int k) {
+        //init & corners
+        int n = s.size();
+        vector<int> stat(26, 0);
+        for(int i = 0; i < s.size(); i++){
+            int idx = s[i] - 'a';
+            stat[idx]++;
+        }
+        priority_queue<pair<int,int>, vector<pair<int,int> >, cmp> pq;
+        for(int i = 0; i < 26; i++){
+            if( stat[i] == 0 ) continue;
+            pq.push({stat[i], i});
+            //cout << i+'a' << ">" << stat[i] << endl;
+        }
+        
+        //aaabbbcccddd
+        //abcdabcdabcd
+        queue<pair<int, int> > waitq;
+        string res = "";
+        while( !pq.empty() ){
+            auto top = pq.top(); pq.pop();
+            if( top.first == 0 ) break;
+            
+            char curC = top.second+'a';
+            res += string(1, curC);
+            waitq.push({top.first-1, top.second});
+            
+            
+            if( waitq.size() < k ) continue;
+            auto front = waitq.front(); waitq.pop();
+            if( front.first > 0 )
+               pq.push(front);
+        }
+        if( res.size() != s.size() ) return "";
+        return res;
+    }
+};
