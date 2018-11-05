@@ -11,3 +11,26 @@ Input: word1 = "makes", word2 = "coding"
 Output: 1
 Note:
 You may assume that word1 does not equal to word2, and word1 and word2 are both in the list.
+
+
+class Solution {
+public:
+    int shortestDistance(vector<string>& words, string word1, string word2) {
+        int res = INT_MAX,n=words.size();
+        int widx1 = -1;
+        int widx2 = -1;
+        for(int i = 0; i < n; i++){
+            if(words[i] == word1){
+                widx1 = i;
+            }else if(words[i] == word2){
+                widx2 = i;
+            }else{
+                continue;
+            }
+            if(widx1>=0 && widx2>=0){
+                res = min(res,abs(widx1-widx2));
+            }
+        }
+        return res;
+    }
+};
