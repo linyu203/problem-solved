@@ -1,0 +1,101 @@
+750.number-of-corner-rectangles
+https://leetcode.com/problems/number-of-corner-rectangles/
+Given a grid where each entry is only 0 or 1, find the number of corner rectangles.
+
+A corner rectangle is 4 distinct 1s on the grid that form an axis-aligned rectangle. Note that only the corners need to have the value 1. Also, all four 1s used must be distinct.
+
+ 
+
+Example 1:
+
+Input: grid = 
+[[1, 0, 0, 1, 0],
+ [0, 0, 1, 0, 1],
+ [0, 0, 0, 1, 0],
+ [1, 0, 1, 0, 1]]
+Output: 1
+Explanation: There is only one corner rectangle, with corners grid[1][2], grid[1][4], grid[3][2], grid[3][4].
+ 
+
+Example 2:
+
+Input: grid = 
+[[1, 1, 1],
+ [1, 1, 1],
+ [1, 1, 1]]
+Output: 9
+Explanation: There are four 2x2 rectangles, four 2x3 and 3x2 rectangles, and one 3x3 rectangle.
+ 
+
+Example 3:
+
+Input: grid = 
+[[1, 1, 1, 1]]
+Output: 0
+Explanation: Rectangles must have four distinct corners.
+ 
+
+Note:
+
+The number of rows and columns of grid will each be in the range [1, 200].
+Each grid[i][j] will be either 0 or 1.
+The number of 1s in the grid will be at most 6000.
+
+
+this problem require us first to identify the possible rectangles, then check their 4 corners for validity into count.
+for each non-0 cell (i0,j0) in the grid, we can use (i0,j0) as the top-left corner,
+then for each cell (i,j) where i > i0 & j > j0 in the bottom-right region of (i,j), as indicated in the graph below, we can use (i,j) as the bottom-right conner.
+to save time, if (i,j) is 0, there is no need to do the step 2;
+Java
+
+class Solution {
+    public int countCornerRectangles(int[][] grid) {
+        int m = grid.length, n = grid[0].length, cnts = 0;
+        for (int i0 = 0; i0 < m; i0++)
+            for (int j0 = 0; j0 < n; j0++)
+                for (int i = i0 + 1; i < m && grid[i0][j0] != 0; i++)
+                    for (int j = j0 + 1; j < n && grid[i][j0] != 0; j++)
+                        cnts += grid[i][j] * grid[i0][j];
+        return cnts;
+    }
+}
+C++
+//460ms
+class Solution {
+public:
+    int countCornerRectangles(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size(), cnt = 0;
+        for (int i0 = 0; i0 < m; i0++)
+            for (int j0 = 0; j0 < n; j0++)
+                for (int i = i0 + 1; i < m && grid[i0][j0]; i++)
+                    for (int j = j0 + 1; j < n && grid[i][j0]; j++)
+                        cnt += grid[i][j] && grid[i0][j];
+        return cnt;
+    }
+};
+
+
+sample 36 ms submission
+class Solution {
+public:
+    int countCornerRectangles(vector<vector<int>>& grid) {
+        vector<bitset<200>> ones(grid.size());
+        for (int i = 0; i < grid.size(); ++i) {
+            for (int j = 0; j < grid[i].size(); ++j) {
+                if (grid[i][j]) {
+                    ones[i].set(j);
+                }
+            }
+        }
+        int res = 0;
+        for (int i = 0; i < grid.size(); ++i) {
+            for (int j = 0; j < i; ++j) {
+                int cnt = (ones[i] & ones[j]).count();
+                if (cnt > 1) {
+                    res += cnt * (cnt - 1) / 2;
+                }
+            }
+        }
+        return res;
+    }
+};
