@@ -11,3 +11,39 @@ Input: word1 = "makes", word2 = "coding"
 Output: 1
 Note:
 You may assume that word1 does not equal to word2, and word1 and word2 are both in the list.
+
+
+
+class WordDistance {
+    unordered_map<string,vector<int>>ump;
+public:
+    WordDistance(vector<string> words) {
+        for(int i = 0; i < words.size(); i++){
+            ump[words[i]].push_back(i);
+        }
+    }
+    
+    int shortest(string word1, string word2) {
+        auto vw1 = ump[word1];
+        auto vw2 = ump[word2];
+        int n1 = vw1.size();
+        int n2 = vw2.size();
+        int res = INT_MAX;
+        int i = 0, j=0;
+        while(i<n1&&j<n2){
+            res = min(res,abs(vw1[i]-vw2[j]));
+            if(vw1[i]<vw2[j]){
+                i++;
+            }else{
+                j++;
+            }
+        }
+        return res;
+    }
+};
+
+/**
+ * Your WordDistance object will be instantiated and called as such:
+ * WordDistance obj = new WordDistance(words);
+ * int param_1 = obj.shortest(word1,word2);
+ */
