@@ -21,3 +21,50 @@ After running your function, the 2D grid should be:
   2   2   1  -1
   1  -1   2  -1
   0  -1   3   4
+
+
+class Solution {
+public:
+    void wallsAndGates(vector<vector<int>>& rooms) {
+        int m = rooms.size();
+        if(m==0)return;
+        int n = rooms[0].size();
+        queue<pair<long,int>>qp;
+        for(long i = 0; i < m;i++){
+            for(long j =0; j < n;j++){
+                if(rooms[i][j]==0){
+                    long key = (i<<32l)|j;
+                    qp.push({key,0});
+                }
+            }
+        }
+        
+        while(!qp.empty()){
+            long key = qp.front().first;
+            int st = qp.front().second;
+            qp.pop();
+            long x = key>>32l;
+            long y = key&0xffffffff;
+            if(x>0&&rooms[x-1][y]>(st+1)){
+                rooms[x-1][y] = st+1;
+                key = ((x-1)<<32l)|y;
+                qp.push({key,st+1});
+            }
+            if(y>0&&rooms[x][y-1]>(st+1)){
+                rooms[x][y-1] = st+1;
+                key = ((x)<<32l)|(y-1);
+                qp.push({key,st+1});
+            }
+            if(x<m-1&&rooms[x+1][y]>(st+1)){
+                rooms[x+1][y] = st+1;
+                key = ((x+1)<<32l)|y;
+                qp.push({key,st+1});
+            }
+            if(y<n-1&&rooms[x][y+1]>(st+1)){
+                rooms[x][y+1] = st+1;
+                key = ((x)<<32l)|(y+1);
+                qp.push({key,st+1});
+            }
+        }
+    }
+};
