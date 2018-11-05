@@ -1,0 +1,95 @@
+267. Palindrome Permutation II
+https://leetcode.com/problems/palindrome-permutation-ii/
+
+
+Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.
+
+Example 1:
+
+Input: "aabb"
+Output: ["abba", "baab"]
+Example 2:
+
+Input: "abc"
+Output: []
+
+
+class Solution {  
+    vector<string> help(string center, vector<int> &count) {
+        vector<string> result;
+        for (int i = 0; i < count.size(); i++) {
+            if (count[i] > 0) {
+                count[i] -= 2;
+                for (auto n : help(center, count)) {
+                    result.push_back((char)i+ n + (char)i);
+                }
+                count[i] += 2;
+            }
+        }
+        if (result.size() == 0) {
+            return vector<string>{center};
+        }
+        return result;
+    }
+    
+public:
+    vector<string> generatePalindromes(string s) {
+        vector<int> count(256, 0);
+        for (auto c : s) {
+            count[c]++;
+        }
+        string center = "";
+        for (int i = 0; i < count.size(); i++) {
+            if (count[i] % 2 == 1) {
+                if (center != "") {
+                    return vector<string>{};
+                }
+                center = i;
+                count[i]--;
+            }
+        }
+        return help(center, count);
+    }
+};
+
+
+
+class Solution {
+public:
+    vector<string> generatePalindromes(string s) {
+        vector<string> result;
+        unordered_map<char, int> charCount;
+        int oddCnt=0, N=0;
+        string mid;
+        for (int i=0; i<s.size(); i++)
+            charCount[s[i]] ++;
+        for (auto &c : charCount) {
+            if (c.second %2 == 1) {
+                mid = c.first;
+                oddCnt++;
+            }
+            c.second /= 2;
+            N += c.second;
+        }
+        if (oddCnt > 1)
+            return result;
+        helper(charCount, "", mid, N, result);
+        return result;
+    }
+private:
+    void helper(unordered_map<char, int> &charCount, string s, string &mid, int &N, vector<string> &r) {
+        if (s.size() == N) {
+            string rev = s;
+            reverse(rev.begin(), rev.end());
+            r.push_back(s + mid + rev);
+            return;
+        }
+        for (auto &c : charCount) {
+            if (c.second > 0) {
+                c.second--;
+                helper(charCount, s+c.first, mid, N, r);
+                c.second++;
+            }
+        }
+    }
+};
