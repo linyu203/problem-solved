@@ -17,3 +17,33 @@ Output: 2
 Explanation: The subarray [-1, 2] sums to 1 and is the longest.
 Follow Up:
 Can you do it in O(n) time?
+
+
+
+
+
+
+class Solution {
+public:
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        int n =nums.size();
+        if(n==0)return 0;
+        unordered_map<int,int>ump;
+        int res = 0;
+        if(nums[0]==k)res=1;
+        ump[nums[0]]=0;
+        for(int i =1; i < n; i++){
+            nums[i]+=nums[i-1];
+            if(nums[i]==k)
+                res = i+1;
+            ump[nums[i]]=i;
+        }
+        for(int i = 0; i < n-1; i++){
+            int tt = nums[i]+k;
+            if(ump.count(tt)){
+                res = max(res,ump[tt]-i);
+            }
+        }
+        return res;
+    }
+};
