@@ -1,0 +1,191 @@
+418. Sentence Screen Fitting
+https://leetcode.com/problems/sentence-screen-fitting/
+
+Given a rows x cols screen and a sentence represented by a list of non-empty words, find how many times the given sentence can be fitted on the screen.
+
+Note:
+
+A word cannot be split into two lines.
+The order of words in the sentence must remain unchanged.
+Two consecutive words in a line must be separated by a single space.
+Total words in the sentence won't exceed 100.
+Length of each word is greater than 0 and won't exceed 10.
+1 ≤ rows, cols ≤ 20,000.
+Example 1:
+
+Input:
+rows = 2, cols = 8, sentence = ["hello", "world"]
+
+Output: 
+1
+
+Explanation:
+hello---
+world---
+
+The character '-' signifies an empty space on the screen.
+Example 2:
+
+Input:
+rows = 3, cols = 6, sentence = ["a", "bcd", "e"]
+
+Output: 
+2
+
+Explanation:
+a-bcd- 
+e-a---
+bcd-e-
+
+The character '-' signifies an empty space on the screen.
+Example 3:
+
+Input:
+rows = 4, cols = 5, sentence = ["I", "had", "apple", "pie"]
+
+Output: 
+1
+
+Explanation:
+I-had
+apple
+pie-I
+had--
+
+The character '-' signifies an empty space on the screen.
+
+
+
+I use num to represent how many words can be put in the screen. we use a map<i, cnt> to record for each line how many words cnt can be put when starting with word i. So when we scan each line of the screen, we first get the starting word should be put on this line. If this starting words is already in the map, then just read it; otherwise, create a new entry in this map.
+
+class Solution {
+public:
+    int wordsTyping(vector<string>& sentence, int rows, int cols) {
+        unordered_map<int, int> umap;
+        int num = 0, n = sentence.size();
+        for(int i = 0; i < rows; i++){
+            int start = num % n;
+            if(umap.count(start) == 0){
+                int cnt = 0, len = 0;
+                for(int i = start; len < cols; i = (i+1) % n, cnt++){
+                    if(len + sentence[i].size() > cols)
+                        break;
+                    len += sentence[i].size() + 1;
+                }
+                num += cnt;
+                umap.emplace(start, cnt);
+            }
+            else
+                num += umap[start];
+        }
+        return num / n;
+    }
+};    
+    
+    
+    
+class Solution {
+public:
+    int wordsTyping(vector<string>& sentence, int rows, int cols) {
+        string whole = "";
+        for (string word: sentence)
+            whole += (word+"-");
+        int ptr = 0;
+        int len = whole.size();
+        //printf("whole sentence:%s length:%d\n", whole.c_str(), len);
+        for (int i=0; i<rows; ++i) {
+            //printf("=== updated ptr:%d ===\n", ptr);
+            ptr += cols;
+            //printf("add cols -> ptr:%d\n", ptr);
+            //printf("whole[ptr:%d %% len:%d = %d] = %c\n", ptr, len, ptr%len, whole[ptr%len]);
+            if (whole[ptr%len]=='-') {
+                ++ptr;
+                //printf("+1 -> ptr:%d\n", ptr);
+            } else {
+                //printf("whole[ptr-1:%d %% len:%d = %d] = %c\n", ptr-1, len, (ptr-1)%len, whole[(ptr-1)%len]);
+                while (ptr>0 && whole[(ptr-1)%len]!='-') {
+                    //printf("whole[ptr-1:%d %% len:%d = %d] = %c\n", ptr-1, len, (ptr-1)%len, whole[(ptr-1)%len]);
+                    --ptr;
+                    //printf("-1 -> ptr:%d \n", ptr);
+                }
+            }
+        }
+        return ptr/len;
+    }
+};
+
+/*
+class Solution {
+public:
+    int wordsTyping(vector<string>& sentence, int rows, int cols) {
+        string whole = "";
+        for (string word: sentence)
+            whole += (word+"-");
+        int res = 0;
+        int idx = 0;
+        int n = sentence.size();
+        int len = whole.size();
+        for (int i=0; i<rows; ++i) {
+            int colRemain = cols;
+            while (colRemain>0) {
+                if (sentence[idx].size()<=colRemain) {
+                    colRemain -= sentence[idx].size();
+                    if (colRemain>0)
+                        colRemain -= 1;
+                    if (++idx >= n) {
+                        res += (1 + colRemain/len);
+                        colRemain %= len;
+                        idx = 0;
+                    }
+                } else
+                    break;
+            }
+        }
+        return res;
+    }
+};
+
+
+class Solution {
+public:
+    int wordsTyping(vector<string>& sentence, int rows, int cols) {
+        unordered_map<int, int> umap;
+        int num = 0, n = sentence.size();
+        for (int i=0; i<rows; ++i) {
+            int start = num%n;
+            if (umap.count(start)==0) {
+                int cnt = 0, len = 0;
+                for (int j=start; len<cols; j=(j+1)%n, cnt++) {
+                    if (len+sentence[j].size()>cols)
+                        break;
+                    len += sentence[j].size()+1;
+                }
+                num += cnt;
+                umap.emplace(start, cnt);
+            } else
+                num += umap[start];
+        }
+        return num/n;
+    }
+};
+
+
+class Solution {
+public:
+    int wordsTyping(vector<string>& sentence, int rows, int cols) {
+        int n = sentence.size(), num = 0, start = 0;
+        unordered_map<int, int> mp;
+        while (rows--) {
+            start = num%n;
+            if (mp.find(start)==mp.end()) {
+                int cnt = 0, len = -1;
+                while ((len = len+1+(int)sentence[(start+cnt)%n].size()) <= cols)
+                    cnt++;
+                mp[start] = cnt;
+            }
+            num += mp[start];
+        }
+        return num/n;
+    }
+};
+*/
