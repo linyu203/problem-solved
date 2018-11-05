@@ -1,0 +1,180 @@
+527. Word  Abbreviation
+https://leetcode.com/problems/word-abbreviation/
+Given an array of n distinct non-empty strings, you need to generate minimal possible abbreviations for every word following rules below.
+
+Begin with the first character and then the number of characters abbreviated, which followed by the last character.
+If there are any conflict, that is more than one words share the same abbreviation, a longer prefix is used instead of only the first character until making the map from word to abbreviation become unique. In other words, a final abbreviation cannot map to more than one original words.
+If the abbreviation doesn't make the word shorter, then keep it as original.
+Example:
+Input: ["like", "god", "internal", "me", "internet", "interval", "intension", "face", "intrusion"]
+Output: ["l2e","god","internal","me","i6t","interval","inte4n","f2e","intr4n"]
+Note:
+Both n and the length of each word will not exceed 400.
+The length of each word is greater than 1.
+The words consist of lowercase English letters only.
+The return answers should be in the same order as the original array.
+
+
+
+//244ms
+#define index(x) x - 'a'
+struct TrieNode { 
+  TrieNode() { for(int i=0;i<26;i++) child[i] = NULL; end = false; count = 0;}
+  TrieNode *child[26];
+  int count;
+  bool end;
+};
+class tri { 
+public:
+  tri() { 
+    root = new TrieNode();
+  }
+  void insert(string s) { 
+    TrieNode *node = root;
+    for(auto e: s ) { 
+      if(!node->child[  index(e) ]  ) {
+        node->child[ index(e) ] = new TrieNode();
+      }
+      node->count++;
+      node = node->child[ index(e) ];
+    }
+    if(root != node) node->end =true;
+  }
+  int findSplit(string s) { 
+    TrieNode *node = root;
+    for(int i=0;i<s.length();i++) { 
+      if(node->count <= 1 ) return i;
+      node = node->child[ index(s[i]) ];
+    }
+    return -1;
+  }
+  ~tri() { 
+      clean(root);
+    }
+private:
+  void clean(TrieNode *r ) { 
+    if(r ) { 
+      for(int i=0;i<26;i++) clean(r->child[i]);
+      delete r;
+    }
+  }
+  TrieNode *root;
+};
+
+
+class Solution {
+public:
+    vector<string> wordsAbbreviation(vector<string>& dict) {
+      map<string,vector<string> > index;
+      map<string,string> rev;
+      for(auto e : dict) { 
+        string s = abbr(e);
+        index[ s ].push_back(e );
+        rev[e] = s;
+      }
+      vector<string> result;
+      for(auto e: index) { 
+        if(e.second.size() > 1 ) { 
+
+          vector<string> r = fix(e.second,rev);
+          for(auto c : r) result.push_back(c);
+        }
+        else result.push_back(e.first);
+      }
+      vector<string> r1;
+      for(auto e: dict) r1.push_back( rev[e] );
+      return r1;
+      return result;
+    }
+
+private:
+    string abbr(string s,int b=1) { 
+      if(s.length() <= 3 ) return s;
+      string result;
+      stringstream ss;
+      for(int i=0;i<b;i++)
+        ss << s[i];
+      ss << s.length()  - b -1;
+      ss << s[s.length()-1];
+      result = ss.str();
+      return (result.length() < s.length() ? result : s );
+    }
+
+    vector<string> fix(vector<string> &dict,map<string,string> &rev) { 
+      tri t;
+      for(auto e: dict) { 
+        t.insert(e);
+      }
+      vector<string> r;
+      for(auto e: dict) { 
+        int b =  t.findSplit(e);
+       r.push_back( abbr(e,b) );
+       rev[e] = r.back();
+      }
+      return r;
+    }
+    
+
+};
+
+
+sample 36 ms submission
+class Solution {
+    string abbr(string &in, int i) {
+        int l = in.length();
+        if (l - i <= 3) {
+            return in;
+        }
+        return in.substr(0, i + 1) + to_string(l - i - 2) + in.back();
+    }
+public:
+    vector<string> wordsAbbreviation(vector<string>& dict) {
+        int sz = dict.size();
+        vector<string> res(sz);
+        
+        unordered_map<string, vector<int>> groups;
+        for (int i = 0; i < sz; ++i) {
+            auto &w = dict[i];
+            groups[abbr(w, 0)].push_back(i);
+        }
+        
+        for (auto it : groups) {
+            auto &ids = it.second;
+            if (ids.size() == 1) {
+                res[ids[0]] = it.first;
+                continue;
+            }
+            
+            sort(ids.begin(), ids.end(), [&](int a, int b) {
+                return dict[a] < dict[b];
+            });
+            
+            int lastlen = 0;
+            for (int i = 0; i < ids.size(); ++i) {
+                int id = ids[i];
+                string &w = dict[id];
+                int l = w.length();
+                
+                int comm = 0;
+                if (i < ids.size() - 1) {
+                    for (int j = 0; j < l; ++j) {
+                        if (w[j] == dict[ids[i + 1]][j]) {
+                            ++comm;
+                        } else {
+                            break;
+                        }
+                    }
+                    int c = comm;
+                    comm = max(comm, lastlen);
+                    lastlen = c;
+                } else {
+                    comm = lastlen;
+                }
+                
+                res[id] = abbr(w, comm);
+            }
+        }
+        
+        return res;
+    }
+};
